@@ -1,7 +1,7 @@
 # reefwatch-backend
 
 ## Setup
-You will need Tornado light-weight, non-blocking webserver installed and some libraries
+You will need [Tornado](https://tornadoweb.org) light-weight, non-blocking webserver installed and some libraries
 
 ```
 sudo apt-get install python-setuptools
