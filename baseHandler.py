@@ -30,3 +30,7 @@ class BaseAuthenticatedHandler(BaseHandler):
 
         if "user_id" in self.current_user:
             self.__user_id__ = self.current_user["user_id"]
+
+if __name__ == "__main__":
+    pass
+            
