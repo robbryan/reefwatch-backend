@@ -11,8 +11,13 @@ from baseHandler import BaseHandler
 
 class SurveyListHandler(BaseHandler):
 
+    def initialize(self, persistentSurveyListObj):
+        self.__persistentSurveyListObj__ = persistentSurveyListObj
+
     def get(self):
-        self.write([])
+        surveyListGetter = self.__persistentSurveyListObj__
+        surveyList = surveyListGetter.get()
+        self.write({"data": surveyList})
 
 
 if __name__ == "__main__":
