@@ -25,6 +25,9 @@ class PersistentLocationListDummy(PersistentLocationListBase):
 
     def get(self, limit=100, offset=0, **kwargs):
         logger.info("Limit: {0}\tOffset: {1}".format(limit, offset))
+        assert(type(limit) == int)
+        assert(limit > 0)
+        assert(type(offset) == int)
         if "query" in kwargs:
             logger.info("Query: {0}".format(kwargs["query"]))
             query = kwargs["query"]
@@ -68,7 +71,7 @@ class PersistentLocationListDummy(PersistentLocationListBase):
             }
         ]
 
-        return dummyResult
+        return (dummyResult[offset:(limit+offset)], len(dummyResult))
 
 
 if __name__ == "__main__":

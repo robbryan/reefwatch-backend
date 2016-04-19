@@ -16,7 +16,7 @@ class LocationListHandler(BaseHandler):
 
     def get(self):
         locationListGetter = self.__persistentLocationListObj__
-        locationList = locationListGetter.get()
+        locationList, totalRecordCount = locationListGetter.get()
         self.write({"data": locationList})
 
 
