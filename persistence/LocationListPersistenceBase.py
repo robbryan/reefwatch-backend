@@ -31,16 +31,40 @@ class PersistentLocationListDummy(PersistentLocationListBase):
 
         dummyResult = [
             {
-                "id": 1000,
-                "description": "Location 1000"
+                "id": "1000",
+                "description": "Aldinga North"
             },
             {
-                "id": 2000,
-                "description": "Location 2000"
+                "id": "2000",
+                "description": "Aldinga South"
             },
             {
-                "id": 3000,
-                "description": "Location 3000"
+                "id": "3000",
+                "description": "Lady Bay North"
+            },
+            {
+                "id": "4000",
+                "description": "Lady Bay South"
+            },
+            {
+                "id": "5000",
+                "description": "Hallett Cove"
+            },
+            {
+                "id": "6000",
+                "description": "Victor Harbor"
+            },
+            {
+                "id": "7000",
+                "description": "Beachport"
+            },
+            {
+                "id": "8000",
+                "description": "Robe"
+            },
+            {
+                "id": "9000",
+                "description": "Port Macdonnell"
             }
         ]
 
