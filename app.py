@@ -45,7 +45,7 @@ class Application(tornado.web.Application):
         handlers = [
             (r"/", MainHandler),
             (r"/surveys", SurveyListHandler, dict(persistentSurveyListObj=PersistentSurveyList())),
-            (r"/locationss", LocationListHandler, dict(persistentLocationListObj=PersistentLocationList()))
+            (r"/locations", LocationListHandler, dict(persistentLocationListObj=PersistentLocationList()))
         ]
 
         tornado.web.Application.__init__(self, handlers, **settings)
