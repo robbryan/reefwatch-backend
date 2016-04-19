@@ -19,6 +19,10 @@ from surveyHandler import SurveyListHandler
 from persistence.LocationListPersistenceBase import PersistentLocationListDummy as PersistentLocationList
 from locationHandler import LocationListHandler
 
+""" Sites """
+from persistence.SiteListPersistenceBase import PersistentSiteListDummy as PersistentSiteList
+from siteHandler import SiteListHandler
+
 import logging
 
 
@@ -45,6 +49,7 @@ class Application(tornado.web.Application):
         handlers = [
             (r"/", MainHandler),
             (r"/surveys", SurveyListHandler, dict(persistentSurveyListObj=PersistentSurveyList())),
+            (r"/locations/([0-9]+)/sites", SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
             (r"/locations", LocationListHandler, dict(persistentLocationListObj=PersistentLocationList()))
         ]
 
