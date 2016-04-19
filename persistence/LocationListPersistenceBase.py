@@ -18,7 +18,7 @@ class PersistentLocationListBase(object):
         raise NotImplementedError
 
 
-class PersistentLocationListDummy(PersistentSurveyListBase):
+class PersistentLocationListDummy(PersistentLocationListBase):
 
     def __init__(self):
         pass
