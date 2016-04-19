@@ -11,8 +11,13 @@ import tornado.web
 import tornado.httpserver
 from tornado.options import define, options
 
+""" Surveys """
 from persistence.SurveyListPersistenceBase import PersistentSurveyListDummy as PersistentSurveyList
 from surveyHandler import SurveyListHandler
+
+""" Locations """
+from persistence.LocationListPersistenceBase import PersistentLocationListDummy as PersistentLocationList
+from locationHandler import LocationListHandler
 
 import logging
 
@@ -39,7 +44,8 @@ class Application(tornado.web.Application):
 
         handlers = [
             (r"/", MainHandler),
-            (r"/surveys", SurveyListHandler, dict(persistentSurveyListObj=PersistentSurveyList()))
+            (r"/surveys", SurveyListHandler, dict(persistentSurveyListObj=PersistentSurveyList())),
+            (r"/locationss", LocationListHandler, dict(persistentLocationListObj=PersistentLocationList()))
         ]
 
         tornado.web.Application.__init__(self, handlers, **settings)
