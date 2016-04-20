@@ -15,12 +15,19 @@ class SiteListHandler(BaseEntityListHandler):
         self.__persistentEntityListObj__ = persistentEntityListObj
 
     def get(self, location=None):
-        limit, offset = self.getLimitAndOffset()
+        pageSize, pageNum = self.getPageSizeAndNum()
+        offset = (pageNum-1)*pageSize
+        limit = pageSize
         entityListGetter = self.__persistentEntityListObj__
         entityList, totalRecordCount = entityListGetter.get(
             limit=limit,
             offset=offset
             )
+        self.setResponseHeaders(
+            pageNum=pageNum,
+            pageSize=pageSize,
+            totalRecordCount=totalRecordCount
+        )
         self.write({"data": entityList})
 
 

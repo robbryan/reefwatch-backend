@@ -15,12 +15,19 @@ class LocationListHandler(BaseEntityListHandler):
         self.__persistentLocationListObj__ = persistentLocationListObj
 
     def get(self):
-        limit, offset = self.getLimitAndOffset()
+        pageSize, pageNum = self.getPageSizeAndNum()
+        offset = (pageNum-1)*pageSize
+        limit = pageSize
         locationListGetter = self.__persistentLocationListObj__
         locationList, totalRecordCount = locationListGetter.get(
             limit=limit,
             offset=offset
             )
+        self.setResponseHeaders(
+            pageNum=pageNum,
+            pageSize=pageSize,
+            totalRecordCount=totalRecordCount
+        )
         self.write({"data": locationList})
 
 
