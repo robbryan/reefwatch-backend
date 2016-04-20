@@ -15,7 +15,14 @@ class LocationListHandler(BaseEntityListHandler):
         self.__persistentLocationListObj__ = persistentLocationListObj
 
     def get(self):
-        pageSize, pageNum = self.getPageSizeAndNum()
+        try:
+            pageSize, pageNum = self.getPageSizeAndNum()
+        except ValueError as exPage:
+            self.set_status(400)
+            self.add_header("error", "{0}".format(exPage))
+            self.finish({"message": "{0}".format(exPage)})
+            return
+
         offset = (pageNum-1)*pageSize
         limit = pageSize
         locationListGetter = self.__persistentLocationListObj__
