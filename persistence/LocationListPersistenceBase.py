@@ -35,39 +35,48 @@ class PersistentLocationListDummy(PersistentLocationListBase):
         dummyResult = [
             {
                 "id": "1000",
-                "description": "Aldinga North"
+                "description": "Aldinga North",
+                "location_code": "AN"
             },
             {
                 "id": "2000",
-                "description": "Aldinga South"
+                "description": "Aldinga South",
+                "location_code": "AS"
             },
             {
                 "id": "3000",
-                "description": "Lady Bay North"
+                "description": "Lady Bay North",
+                "location_code": "LBN"
             },
             {
                 "id": "4000",
-                "description": "Lady Bay South"
+                "description": "Lady Bay South",
+                "location_code": "LBS"
             },
             {
                 "id": "5000",
-                "description": "Hallett Cove"
+                "description": "Hallett Cove",
+                "location_code": "HC"
             },
             {
                 "id": "6000",
-                "description": "Victor Harbor"
+                "description": "Victor Harbor",
+                "location_code": "YB"
             },
             {
                 "id": "7000",
-                "description": "Beachport"
+                "description": "Beachport",
+                "location_code": "B"
             },
             {
                 "id": "8000",
-                "description": "Robe"
+                "description": "Robe",
+                "location_code": "R"
             },
             {
                 "id": "9000",
-                "description": "Port Macdonnell"
+                "description": "Port Macdonnell",
+                "location_code": "PM"
             }
         ]
 

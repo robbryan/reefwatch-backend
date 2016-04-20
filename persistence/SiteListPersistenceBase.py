@@ -31,23 +31,31 @@ class PersistentSiteListDummy(PersistentSiteListBase):
         if "query" in kwargs:
             logger.info("Query: {0}".format(kwargs["query"]))
             query = kwargs["query"]
+            
+        if "location" in kwargs:
+            location = kwargs["location"]
+        else:
+            location = ""
 
         dummyResult = [
             {
                 "id": 1000,
                 "description": "Upper",
+                "site_code": "{l}{s}".format(l=location,s="U"),
                 "latitude": None,
                 "longitude": None
             },
             {
                 "id": 2000,
                 "description": "Middle",
+                "site_code": "{l}{s}".format(l=location,s="M"),
                 "latitude": None,
                 "longitude": None
             },
             {
                 "id": 3000,
                 "description": "Lower",
+                "site_code": "{l}{s}".format(l=location,s="L"),
                 "latitude": None,
                 "longitude": None
             }
