@@ -34,6 +34,11 @@ class BaseAuthenticatedHandler(BaseHandler):
 
 class BaseEntityListHandler(BaseHandler):
 
+    def options(self, *args):
+        self.set_header("Access-Control-Allow-Methods", "GET")
+        self.finish()
+
+
     def getLimitAndOffset(self, defaultLimit=100):
         try:
             pageNum = int(self.get_argument("page", 1))
