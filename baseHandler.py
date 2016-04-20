@@ -39,6 +39,15 @@ class BaseEntityListHandler(BaseHandler):
         self.finish()
 
 
+    def prepare(self):
+        self.__fullyQualifiedRequestPath__ = 
+            "{prot}://{server}{path}".format(
+                prot=self.request.protocol,
+                server=self.request.host,
+                path=self.request.path
+                )
+
+
     def getLimitAndOffset(self, defaultLimit=100):
         try:
             pageNum = int(self.get_argument("page", 1))
@@ -55,6 +64,44 @@ class BaseEntityListHandler(BaseHandler):
             raise ValueError("The 'per_page' parameter must be a positive integer")
 
         return (pageSize, (pageNum-1)*pageSize)
+
+
+    def setResponseHeaders(pageNum, pageSize, totalRecordCount):
+        self.set_header("page", "{page_num}".format(page_num = pageNum))
+        self.set_header("per_page", "{page_size}".format(page_size = pageSize))
+
+        lastPage = int(math.ceil(totalRecordCount / (pageSize * 1.0)))
+        linkHeader = ['<{request_path}?page=1&per_page={page_size}>; rel="first"'.format(request_path = self.__fullyQualifiedRequestPath__, page_size = pageSize)]
+
+        if pageNum > 1:
+            linkHeader.append('<{request_path}?page={page_num}&per_page={page_size}>; rel="previous"'.format(
+                request_path = self.__fullyQualifiedRequestPath__, page_num = pageNum -1, page_size = pageSize
+                )
+            )
+
+        if pageNum < lastPage:
+            linkHeader.append('<{request_path}?page={page_num}&per_page={page_size}>; rel="next"'.format(
+                request_path = self.__fullyQualifiedRequestPath__, page_num = pageNum +1, page_size = pageSize
+                )
+            )
+
+        linkHeader.append('<{request_path}?page={last_page}&per_page={page_size}>; rel="last"'.format(
+                request_path = self.__fullyQualifiedRequestPath__,
+                last_page = lastPage,
+                page_size = pageSize
+                )
+            )
+
+        linkHeader.append('<{request_path}?page={last_page}&per_page={page_size}>; rel="current"'.format(
+                request_path = self.__fullyQualifiedRequestPath__,
+                last_page = pageNum,
+                page_size = pageSize
+                )
+            )
+        self.set_header("link", ", ".join(linkHeader))
+        self.set_header("X-Total-Count", "{0}".format(totalRecordCount))
+
+        self.set_header("Access-Control-Expose-Headers", "X-Total-Count, link, page, per_page")
 
 
 if __name__ == "__main__":
