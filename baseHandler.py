@@ -31,6 +31,27 @@ class BaseAuthenticatedHandler(BaseHandler):
         if "user_id" in self.current_user:
             self.__user_id__ = self.current_user["user_id"]
 
+
+class BaseEntityListHandler(BaseHandler):
+
+    def getLimitAndOffset(self, defaultLimit, defaultPageSize):
+        try:
+            pageNum = int(self.get_argument("page", defaultLimit))
+            if pageNum < 1:
+                raise ValueError
+        except:
+            raise ValueError("The 'page' parameter must be a positive integer")
+
+        try:
+            pageSize = int(self.get_argument("per_page", defaultPageSize))
+            if pageSize < 1:
+                raise ValueError
+        except:
+            raise ValueError("The 'per_page' parameter must be a positive integer")
+
+        return ((pageNum-1)*pageSize, pageSize)
+
+
 if __name__ == "__main__":
     pass
             
