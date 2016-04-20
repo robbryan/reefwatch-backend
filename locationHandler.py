@@ -6,17 +6,21 @@ __author__    = "Paul Staszyc"
 __copyright__ = "Copyright 2016"
 
 
-from baseHandler import BaseHandler
+from baseHandler import BaseEntityListHandler
 
 
-class LocationListHandler(BaseHandler):
+class LocationListHandler(BaseEntityListHandler):
 
     def initialize(self, persistentLocationListObj):
         self.__persistentLocationListObj__ = persistentLocationListObj
 
     def get(self):
+        limit, offset = self.getLimitAndOffset()
         locationListGetter = self.__persistentLocationListObj__
-        locationList, totalRecordCount = locationListGetter.get()
+        locationList, totalRecordCount = locationListGetter.get(
+            limit=limit,
+            offset=offset
+            )
         self.write({"data": locationList})
 
 

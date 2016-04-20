@@ -34,22 +34,22 @@ class BaseAuthenticatedHandler(BaseHandler):
 
 class BaseEntityListHandler(BaseHandler):
 
-    def getLimitAndOffset(self, defaultLimit, defaultPageSize):
+    def getLimitAndOffset(self, defaultLimit=100):
         try:
-            pageNum = int(self.get_argument("page", defaultLimit))
+            pageNum = int(self.get_argument("page", 1))
             if pageNum < 1:
                 raise ValueError
         except:
             raise ValueError("The 'page' parameter must be a positive integer")
 
         try:
-            pageSize = int(self.get_argument("per_page", defaultPageSize))
+            pageSize = int(self.get_argument("per_page", defaultLimit))
             if pageSize < 1:
                 raise ValueError
         except:
             raise ValueError("The 'per_page' parameter must be a positive integer")
 
-        return ((pageNum-1)*pageSize, pageSize)
+        return (pageSize, (pageNum-1)*pageSize)
 
 
 if __name__ == "__main__":
