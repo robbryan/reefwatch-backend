@@ -4,7 +4,7 @@ import tornado.httpclient
 import tornado.ioloop 
 import tornado.web
 from tornado.httputil import HTTPHeaders
-
+import tornado.escape
 
 import datetime
 import simplejson
@@ -65,6 +65,14 @@ class TestListHandlers(unittest.TestCase):
         http_client.fetch(http_request, self.handle_request)
         tornado.ioloop.IOLoop.instance().start()
         self.assertEqual(self.response.code, 200)
+        self.assertTrue("X-Total-Count" in self.response.headers)
+        totalRecordCount = int(self.response.headers["X-Total-Count"])
+
+        self.assertTrue("Per_page" in self.response.headers)
+        perPage = int(self.response.headers["Per_page"])
+
+        responseJson = tornado.escape.json_decode(self.response.body)
+        self.assertEqual(len(responseJson["data"]), totalRecordCount if perPage > totalRecordCount else perPage)
 
         """ Test with valid params """
         request_body = "per_page={0}".format(
@@ -75,8 +83,6 @@ class TestListHandlers(unittest.TestCase):
         http_client.fetch(http_request, self.handle_request)
         tornado.ioloop.IOLoop.instance().start()
         self.assertEqual(self.response.code, 200)
-        self.assertTrue("X-Total-Count" in self.response.headers)
-        totalRecordCount = int(self.response.headers["X-Total-Count"])
 
 
     @unittest.skip("Skipping")
