@@ -5,7 +5,7 @@ You will need [Tornado](https://tornadoweb.org) light-weight, non-blocking webse
 
 ```
 sudo apt-get install python-setuptools
-sudo easy-install tornado
+sudo easy_install tornado
 ```
 
 ## Running
