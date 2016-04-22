@@ -11,6 +11,10 @@ import tornado.web
 import tornado.httpserver
 from tornado.options import define, options
 
+""" Field Days """
+from persistence.FieldDayListPersistenceBase import PersistentFieldDayListDummy as PersistentFieldDayList
+from fieldDayHandler import FieldDayListHandler
+
 """ Surveys """
 from persistence.SurveyListPersistenceBase import PersistentSurveyListDummy as PersistentSurveyList
 from surveyHandler import SurveyListHandler
@@ -48,6 +52,7 @@ class Application(tornado.web.Application):
 
         handlers = [
             (r"/", MainHandler),
+            (r"/field_days", FieldDayListHandler, dict(persistentEntityListObj=PersistentFieldDayList())),
             (r"/surveys", SurveyListHandler, dict(persistentSurveyListObj=PersistentSurveyList())),
             (r"/locations/([0-9]+)/sites", SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
             (r"/locations", LocationListHandler, dict(persistentLocationListObj=PersistentLocationList()))

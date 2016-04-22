@@ -23,6 +23,10 @@ from locationHandler import LocationListHandler
 from persistence.SiteListPersistenceBase import PersistentSiteListDummy as PersistentSiteList
 from siteHandler import SiteListHandler
 
+""" Field Days """
+from persistence.FieldDayListPersistenceBase import PersistentFieldDayListDummy as PersistentFieldDayList
+from fieldDayHandler import FieldDayListHandler
+
 
 class TestListHandlers(unittest.TestCase):
 
@@ -31,8 +35,9 @@ class TestListHandlers(unittest.TestCase):
         listenPort = 8989
         cls.__base_address__ = "http://localhost:{0}/".format(listenPort)
         application = tornado.web.Application([
-                (r'/location', LocationListHandler, dict(persistentLocationListObj=PersistentLocationList())),
-                (r'/location/([0-9]+)/sites', SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
+                (r"/field_days", FieldDayListHandler, dict(persistentEntityListObj=PersistentFieldDayList())),
+                (r'/locations', LocationListHandler, dict(persistentLocationListObj=PersistentLocationList())),
+                (r'/locations/([0-9]+)/sites', SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
                 ]
             )
         application.settings = dict(
@@ -59,30 +64,32 @@ class TestListHandlers(unittest.TestCase):
         """ Test getting list of Locations """
         http_client = tornado.httpclient.AsyncHTTPClient()
 
-        """ Test with no params """
-        http_request = tornado.httpclient.HTTPRequest(
-            self.__base_address__ + "location", method='GET')
-        http_client.fetch(http_request, self.handle_request)
-        tornado.ioloop.IOLoop.instance().start()
-        self.assertEqual(self.response.code, 200)
-        self.assertTrue("X-Total-Count" in self.response.headers)
-        totalRecordCount = int(self.response.headers["X-Total-Count"])
+        for resourcePath in ["locations", "locations/123/sites", "field_days"]:
 
-        self.assertTrue("Per_page" in self.response.headers)
-        perPage = int(self.response.headers["Per_page"])
+            """ Test with no params """
+            http_request = tornado.httpclient.HTTPRequest(
+                self.__base_address__ + resourcePath, method='GET')
+            http_client.fetch(http_request, self.handle_request)
+            tornado.ioloop.IOLoop.instance().start()
+            self.assertEqual(self.response.code, 200)
+            self.assertTrue("X-Total-Count" in self.response.headers)
+            totalRecordCount = int(self.response.headers["X-Total-Count"])
 
-        responseJson = tornado.escape.json_decode(self.response.body)
-        self.assertEqual(len(responseJson["data"]), totalRecordCount if perPage > totalRecordCount else perPage)
+            self.assertTrue("Per_page" in self.response.headers)
+            perPage = int(self.response.headers["Per_page"])
 
-        """ Test with valid params """
-        request_body = "per_page={0}".format(
-            tornado.escape.url_escape("3")
-            )
-        http_request = tornado.httpclient.HTTPRequest(
-            self.__base_address__ + "location?" + request_body, method='GET')
-        http_client.fetch(http_request, self.handle_request)
-        tornado.ioloop.IOLoop.instance().start()
-        self.assertEqual(self.response.code, 200)
+            responseJson = tornado.escape.json_decode(self.response.body)
+            self.assertEqual(len(responseJson["data"]), totalRecordCount if perPage > totalRecordCount else perPage)
+
+            """ Test with valid params """
+            request_body = "per_page={0}".format(
+                tornado.escape.url_escape("3")
+                )
+            http_request = tornado.httpclient.HTTPRequest(
+                self.__base_address__ + resourcePath + "?" + request_body, method='GET')
+            http_client.fetch(http_request, self.handle_request)
+            tornado.ioloop.IOLoop.instance().start()
+            self.assertEqual(self.response.code, 200)
 
 
     @unittest.skip("Skipping")
