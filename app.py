@@ -50,11 +50,17 @@ class Application(tornado.web.Application):
             debug=options.debug if 'debug' in options else False
         )
 
+        """
+            Regular Expression for matching GUIDs.
+            Case-insensitive. With or without dashes. No curly braces
+        """
+        guidRegex = r"[0-9A-Fa-f]{8}-*[0-9A-Fa-f]{4}-*[0-9A-Fa-f]{4}-*[0-9A-Fa-f]{4}-*[0-9A-Fa-f]{12}"
+
         handlers = [
             (r"/", MainHandler),
             (r"/field_days", FieldDayListHandler, dict(persistentEntityListObj=PersistentFieldDayList())),
             (r"/surveys", SurveyListHandler, dict(persistentSurveyListObj=PersistentSurveyList())),
-            (r"/locations/([0-9]+)/sites", SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
+            (r"/locations/({guid})/sites".format(guid=guidRegex), SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
             (r"/locations", LocationListHandler, dict(persistentLocationListObj=PersistentLocationList()))
         ]
 
