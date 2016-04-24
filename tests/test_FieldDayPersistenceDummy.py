@@ -17,6 +17,6 @@ class TestReefwatchFieldDay(unittest.TestCase):
     @coroutine
     def test_basic(self):
         dummyEntityGetter = EntityDummy()
-        dummyEntity = yield dummyListGetter.get(id="90e49f7a-087b-11e6-ad28-902b34626bbb")
+        dummyEntity = yield dummyEntityGetter.get(id="90e49f7a-087b-11e6-ad28-902b34626bbb")
         self.assertIsInstance(dummyEntity, dict)
         print "I RAN!"
