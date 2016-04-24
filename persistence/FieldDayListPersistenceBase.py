@@ -1,6 +1,8 @@
 __author__ = "Paul Staszyc"
 __copyright__ = "Copyright 2016, Paul Staszyc"
 
+import tornado.concurrent
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -23,7 +25,8 @@ class PersistentFieldDayListDummy(PersistentFieldDayListBase):
     def __init__(self):
         pass
 
-    def get(self, limit=100, offset=0, **kwargs):
+    @tornado.concurrent.return_future
+    def get(self, callback, limit=100, offset=0, **kwargs):
         logger.info("Limit: {0}\tOffset: {1}".format(limit, offset))
         assert(type(limit) == int)
         assert(limit > 0)
@@ -122,7 +125,7 @@ class PersistentFieldDayListDummy(PersistentFieldDayListBase):
             }
         ]
 
-        return (dummyResult[offset:(limit+offset)], len(dummyResult))
+        callback ((dummyResult[offset:(limit+offset)], len(dummyResult)))
 
 
 if __name__ == "__main__":

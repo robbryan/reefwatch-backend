@@ -2,6 +2,7 @@ import unittest
 from nose.tools import *
 from persistence.FieldDayListPersistenceBase import PersistentFieldDayListDummy as ListDummy
 
+from tornado.gen import coroutine
 
 class TestReefwatchFieldDay(unittest.TestCase):
 
@@ -13,8 +14,9 @@ class TestReefwatchFieldDay(unittest.TestCase):
     def tearDownClass(cls):
         print "Teardown"
 
+    @coroutine
     def test_basic(self):
         dummyListGetter = ListDummy()
-        dummyList, totalRecordCount = dummyListGetter.get(limit=100, offset=0, query="type='active'")
+        dummyList, totalRecordCount = yield dummyListGetter.get(limit=100, offset=0, query="type='active'")
         self.assertIsInstance(dummyList, list)
         print "I RAN!"

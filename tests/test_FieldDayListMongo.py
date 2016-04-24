@@ -4,6 +4,7 @@ from nose.tools import *
 from persistence.FieldDayListMongo import PersistentFieldDayList as FieldDayList
 
 import mongomock
+from tornado.gen import coroutine
 
 
 class TestReefwatchFieldDay(unittest.TestCase):
@@ -19,14 +20,18 @@ class TestReefwatchFieldDay(unittest.TestCase):
     def tearDownClass(cls):
         print "Teardown"
 
+    @coroutine
     def test_basic(self):
         listGetter = FieldDayList(self.__collection__)
         recordLimit = 10
-        fieldDayList, totalRecordCount = listGetter.get(
+        fieldDayList, totalRecordCount = yield listGetter.get(
             limit=recordLimit,
             offset=0,
             query={"survey_type": "PIT", "location_id": "1000"}
         )
+
+    def on_basic(self, response):
+        fieldDayList, totalRecordCount = response
         self.assertIsInstance(fieldDayList, list)
         self.assertEqual(len(fieldDayList), 1)
 

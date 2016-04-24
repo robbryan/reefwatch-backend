@@ -1,6 +1,7 @@
 __author__ = "Paul Staszyc"
 __copyright__ = "Copyright 2016, Paul Staszyc"
 
+import tornado.concurrent
 
 from FieldDayListPersistenceBase import PersistentFieldDayListBase
 
@@ -13,8 +14,8 @@ class PersistentFieldDayList(PersistentFieldDayListBase):
     def __init__(self, mongoDbCollection):
         self.__mongoDbCollection__ = mongoDbCollection
 
-
-    def get(self, limit=100, offset=0, **kwargs):
+    @tornado.concurrent.return_future
+    def get(self, callback, limit=100, offset=0, **kwargs):
         assert(type(limit) == int)
         assert(limit > 0)
         assert(type(offset) == int)
@@ -40,7 +41,7 @@ class PersistentFieldDayList(PersistentFieldDayListBase):
             # do transformations on fieldDay
             resultList.append(fieldDay)
 
-        return (resultList, self.__mongoDbCollection__.count())
+        callback ((resultList, self.__mongoDbCollection__.count()))
 
 
 if __name__ == "__main__":
