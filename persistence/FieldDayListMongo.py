@@ -41,7 +41,12 @@ class PersistentFieldDayList(PersistentFieldDayListBase):
             # do transformations on fieldDay
             resultList.append(fieldDay)
 
-        callback ((resultList, self.__mongoDbCollection__.count()))
+        callback((resultList, self.__mongoDbCollection__.count()))
+
+    @tornado.concurrent.return_future
+    def add(self, callback, fieldDay):
+        result = self.__mongoDbCollection__.insert_one(fieldDay)
+        callback(str(result))
 
 
 if __name__ == "__main__":
