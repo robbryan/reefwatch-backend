@@ -31,7 +31,7 @@ class BaseAuthenticatedHandler(BaseHandler):
 
     @tornado.web.authenticated
     def prepare(self):
-
+        super(BaseAuthenticatedHandler, self).prepare()
         if "user_id" in self.current_user:
             self.__user_id__ = self.current_user["user_id"]
 
@@ -43,6 +43,7 @@ class BaseEntityListHandler(BaseHandler):
         self.finish()
 
     def prepare(self):
+        super(BaseEntityListHandler, self).prepare()
         self.__fullyQualifiedRequestPath__ = "{prot}://{server}{path}".format(
             prot=self.request.protocol,
             server=self.request.host,
