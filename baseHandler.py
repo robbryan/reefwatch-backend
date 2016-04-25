@@ -21,6 +21,9 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return tornado.escape.json_decode(user_json)
 
+    def prepare(self):
+        self.set_header("Access-Control-Allow-Origin", "*")
+
 
 class BaseAuthenticatedHandler(BaseHandler):
 
