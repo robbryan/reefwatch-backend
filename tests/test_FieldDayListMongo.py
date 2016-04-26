@@ -1,5 +1,5 @@
 import unittest
-from nose.tools import *
+import tornado.testing
 
 from persistence.FieldDayListMongo import PersistentFieldDayList as FieldDayList
 
@@ -7,7 +7,7 @@ import mongomock
 from tornado.gen import coroutine
 
 
-class TestReefwatchFieldDay(unittest.TestCase):
+class TestReefwatchFieldDay(tornado.testing.AsyncTestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -20,8 +20,8 @@ class TestReefwatchFieldDay(unittest.TestCase):
     def tearDownClass(cls):
         print "Teardown"
 
-    @coroutine
-    def test_basic(self):
+    @tornado.testing.gen_test
+    def test_list_get(self):
         listGetter = FieldDayList(self.__collection__)
         recordLimit = 10
         fieldDayList, totalRecordCount = yield listGetter.get(
@@ -29,12 +29,33 @@ class TestReefwatchFieldDay(unittest.TestCase):
             offset=0,
             query={"survey_type": "PIT", "location_id": "1000"}
         )
-
-    def on_basic(self, response):
-        fieldDayList, totalRecordCount = response
         self.assertIsInstance(fieldDayList, list)
         self.assertEqual(len(fieldDayList), 1)
 
+    @tornado.testing.gen_test
+    def test_list_add(self):
+        listOperator = FieldDayList(self.__collection__)
+        recordLimit = 10
+        fieldDayList, initialRecordCount = yield listOperator.get(
+            limit=recordLimit,
+            offset=0
+        )
+        newId = yield listOperator.add(
+            fieldDay={
+                "id": "New ID",
+                "date": "2016-03-20",
+                "description": "New Description",
+                "location_id": "1000",
+                "leader_id": "Leader ID"
+            }
+        )
+        fieldDayList, newRecordCount = yield listOperator.get(
+            limit=recordLimit,
+            offset=0
+        )
+        self.assertIsInstance(fieldDayList, list)
+        self.assertGreaterEqual(newRecordCount, initialRecordCount)
+        
     @classmethod
     def getTestData(cls):
         dummyResult = [
