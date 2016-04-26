@@ -8,6 +8,11 @@ sudo apt-get install python-setuptools
 sudo easy_install tornado
 ```
 
+For Mongo DB support, you will need pymongo as well as mongomock for unit testing
+```
+sudo easy_install pymongo mongomock
+```
+
 ## Running
 
 Most simply, you can just run the app with python and background it
