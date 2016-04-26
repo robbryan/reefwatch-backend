@@ -54,7 +54,7 @@ class TestReefwatchFieldDay(tornado.testing.AsyncTestCase):
             offset=0
         )
         self.assertIsInstance(fieldDayList, list)
-        self.assertGreaterEqual(newRecordCount, initialRecordCount)
+        self.assertGreater(newRecordCount, initialRecordCount)
         
     @classmethod
     def getTestData(cls):
