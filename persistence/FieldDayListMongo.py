@@ -35,7 +35,17 @@ class PersistentFieldDayList(PersistentFieldDayListBase):
         skip() and limit() are costly for large data sets. Beware
         See https://docs.mongodb.org/manual/reference/method/cursor.skip/#cursor.skip for more
         """
-        fieldDayCursor = self.__mongoDbCollection__.find(mongoQuery).skip(((offset)*limit) if offset > 0 else 0).limit(limit)
+        fieldDayCursor = self.__mongoDbCollection__.find(
+            mongoQuery,
+            {
+                "date": 1,
+                "description": 1,
+                "location_id": 1,
+                "leader_id": 1,
+                "tides": 1,
+                "sites": 1
+            }
+        ).skip(((offset)*limit) if offset > 0 else 0).limit(limit)
         resultList = list()
         for result in fieldDayCursor:
             fieldDay = result
