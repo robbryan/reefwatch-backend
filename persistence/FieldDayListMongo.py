@@ -2,6 +2,7 @@ __author__ = "Paul Staszyc"
 __copyright__ = "Copyright 2016, Paul Staszyc"
 
 import tornado.concurrent
+import pymongo.errors
 
 from FieldDayListPersistenceBase import PersistentFieldDayListBase
 
@@ -45,8 +46,16 @@ class PersistentFieldDayList(PersistentFieldDayListBase):
 
     @tornado.concurrent.return_future
     def add(self, callback, fieldDay):
-        result = self.__mongoDbCollection__.insert_one(fieldDay)
-        callback(str(result))
+        try:
+            result = self.__mongoDbCollection__.insert_one(fieldDay)
+        except pymongo.errors.DuplicateKeyError as exDupKey:
+            raise ValueError(
+                "The Field Day with ID '{id}' already exists".format(
+                    id=fieldDay["_id"]
+                )
+            )
+
+        callback(str(result.inserted_id))
 
 
 if __name__ == "__main__":
