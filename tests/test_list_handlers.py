@@ -7,7 +7,6 @@ from tornado.httputil import HTTPHeaders
 import tornado.escape
 
 import datetime
-import simplejson
 import os
 import logging
 
