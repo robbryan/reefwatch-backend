@@ -11,9 +11,14 @@ import tornado.web
 import tornado.httpserver
 from tornado.options import define, options
 
+""" Local Settings """
+try:
+  import localSettings
+except:
+    print "'localSettings.py' NOT found. Using Dummy instead"
+
+
 """ Field Days """
-from persistence.FieldDayListPersistenceBase import PersistentFieldDayListDummy as PersistentFieldDayList
-from persistence.FieldDayPersistenceBase import PersistentFieldDayDummy as PersistentFieldDayEntity
 from fieldDayHandler import FieldDayListHandler, FieldDayHandler
 
 """ Surveys """
@@ -28,8 +33,52 @@ from locationHandler import LocationListHandler
 from persistence.SiteListPersistenceBase import PersistentSiteListDummy as PersistentSiteList
 from siteHandler import SiteListHandler
 
-import logging
+import importlib
 
+"""
+    Determine which storage engine is specified in the user config and
+    import the appropriate modules to support that
+"""
+try:
+    persistenceOptions = options.group_dict("persistence")
+except KeyError:
+    raise
+else:
+    """ Mongo DB Persistence """
+    if "mongo_instance" in persistenceOptions:
+        from pymongo import MongoClient
+        mongoClient = MongoClient(persistenceOptions["mongo_instance"])
+        mongoDb = mongoClient[persistenceOptions["mongo_database"]]
+        if "mongo_user" in persistenceOptions:
+            mongoDb.authenticate(persistenceOptions["mongo_user"], persistenceOptions["mongo_password"])
+
+        PersistentFieldDayListModule = importlib.import_module("persistence.FieldDayListMongo")
+        fieldDayOptions = options.group_dict("field_day")
+        PersistentFieldDayList = PersistentFieldDayListModule.PersistentFieldDayList(
+            mongoDb[fieldDayOptions["field_day_collection"]]
+        )
+        PersistentFieldDayModule = importlib.import_module("persistence.FieldDayMongo")
+        PersistentFieldDayEntity = PersistentFieldDayModule.PersistentFieldDay(mongoDb[fieldDayOptions["field_day_collection"]])
+
+try:
+    if PersistentFieldDayList:
+        pass
+except NameError:
+    print "Warning! No persistence engine was specified for Field Day List - See localSettings.py.sample for examples"
+    print "Using Dummy persistence instead - That's ok for Demos"
+    from persistence.FieldDayListPersistenceBase import PersistentFieldDayListDummy
+    PersistentFieldDayList = PersistentFieldDayListDummy()
+
+try:
+    if PersistentFieldDayEntity:
+        pass
+except NameError:
+    print "Warning! No persistence engine was specified for Field Day - See localSettings.py.sample for examples"
+    print "Using Dummy persistence instead - That's ok for Demos"
+    from persistence.FieldDayPersistenceBase import PersistentFieldDayDummy
+    PersistentFieldDayEntity = PersistentFieldDayDummy()
+
+import logging
 
 if not hasattr(options, "log_file"):
     define("log_file", default="access.log", help="Name of file to which to log")
@@ -59,8 +108,8 @@ class Application(tornado.web.Application):
 
         handlers = [
             (r"/", MainHandler),
-            (r"/field_days", FieldDayListHandler, dict(persistentEntityListObj=PersistentFieldDayList())),
-            (r"/field_days/({guid})".format(guid=guidRegex), FieldDayHandler, dict(persistentEntityObj=PersistentFieldDayEntity())),
+            (r"/field_days", FieldDayListHandler, dict(persistentEntityListObj=PersistentFieldDayList)),
+            (r"/field_days/({guid})".format(guid=guidRegex), FieldDayHandler, dict(persistentEntityObj=PersistentFieldDayEntity)),
             (r"/surveys", SurveyListHandler, dict(persistentSurveyListObj=PersistentSurveyList())),
             (r"/locations/({guid})/sites".format(guid=guidRegex), SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
             (r"/locations", LocationListHandler, dict(persistentLocationListObj=PersistentLocationList()))
@@ -70,8 +119,11 @@ class Application(tornado.web.Application):
 
 
 def main():
-    define("port", default="9880", help="Port on which the HTTP server will listen")
-    define("debug", default=False, help="Set some logging options + auto-reload on file change")
+    if not hasattr(options, "port"):
+        define("port", default="9880", help="Port on which the HTTP server will listen")
+    
+    if not hasattr(options, "debug"):
+        define("debug", default=False, help="Set some logging options + auto-reload on file change")
     tornado.options.parse_command_line()
     http_server = tornado.httpserver.HTTPServer(Application())
     http_server.listen(options.port)
