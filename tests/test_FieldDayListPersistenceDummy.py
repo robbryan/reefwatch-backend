@@ -1,10 +1,10 @@
 import unittest
-from nose.tools import *
+import tornado.testing
 from persistence.FieldDayListPersistenceBase import PersistentFieldDayListDummy as ListDummy
 
 from tornado.gen import coroutine
 
-class TestReefwatchFieldDay(unittest.TestCase):
+class TestReefwatchFieldDay(tornado.testing.AsyncTestCase):
 
     @classmethod
     def setUpClass(cls):

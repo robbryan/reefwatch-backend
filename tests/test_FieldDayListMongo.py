@@ -4,7 +4,6 @@ import tornado.testing
 from persistence.FieldDayListMongo import PersistentFieldDayList as FieldDayList
 
 import mongomock
-from tornado.gen import coroutine
 
 
 class TestReefwatchFieldDay(tornado.testing.AsyncTestCase):
