@@ -1,0 +1,17 @@
+from tornado.options import define, options
+
+define("port", type=int, default=9880, help="Listen on the given port")
+define("log_file", type=str, default="access.log", help="Name of file to which to log")
+define("debug", type=bool, default=False, help="Auto-reload on code change")
+define("cookie_secret", default=None, help="Encryption key used for ecrypting secure cookies")
+
+""" Define MongoDB connection and database details """
+define("mongo_instance", type=str, group="persistence", default=None, help="host:port for MongoDB instance")
+define("mongo_database", type=str, group="persistence", default="reefwatch_dev", help="Name of the Reef Watch database on the MongoDB instance")
+#define("mongo_user", type=str, group="persistence", default=None, help="Username used to authenticate to MongoDB")
+#define("mongo_password", type=str, group="persistence", default=None, help="Password used to authenticate to MongoDB")
+
+""" Define Mongo collection 
+define("field_day_collection", type=str, group="field_day", default="field_day", help="Name of Field Day collection on MongoDB")
+define("survey_location_collection", type=str, group="location", default="survey_location", help="Name of Survey Location collection on MongoDB")
+define("survey_site_collection", type=str, group="site", default="survey_site", help="Name of Survey Site collection on MongoDB")
