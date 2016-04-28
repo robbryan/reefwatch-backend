@@ -2,8 +2,6 @@ import unittest
 import tornado.testing
 from persistence.FieldDayPersistenceBase import PersistentFieldDayDummy as EntityDummy
 
-from tornado.gen import coroutine
-
 
 class TestReefwatchFieldDay(tornado.testing.AsyncTestCase):
 
@@ -15,10 +13,10 @@ class TestReefwatchFieldDay(tornado.testing.AsyncTestCase):
     def tearDownClass(cls):
         print "Teardown"
 
-    @coroutine
+    @tornado.testing.gen_test
     def test_basic(self):
         dummyEntityGetter = EntityDummy()
-        dummyEntity = yield dummyEntityGetter.get(id="90e49f7a-087b-11e6-ad28-902b34626bbb")
+        dummyEntity = yield dummyEntityGetter.get(fieldDayId="90e49f7a-087b-11e6-ad28-902b34626bbb")
         self.assertIsInstance(dummyEntity, dict)
         self.assertTrue(any(dummyEntity))
         

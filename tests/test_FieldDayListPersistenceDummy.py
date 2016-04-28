@@ -2,7 +2,6 @@ import unittest
 import tornado.testing
 from persistence.FieldDayListPersistenceBase import PersistentFieldDayListDummy as ListDummy
 
-from tornado.gen import coroutine
 
 class TestReefwatchFieldDay(tornado.testing.AsyncTestCase):
 
@@ -14,7 +13,7 @@ class TestReefwatchFieldDay(tornado.testing.AsyncTestCase):
     def tearDownClass(cls):
         print "Teardown"
 
-    @coroutine
+    @tornado.testing.gen_test
     def test_basic(self):
         dummyListGetter = ListDummy()
         dummyList, totalRecordCount = yield dummyListGetter.get(limit=100, offset=0, query="type='active'")
