@@ -1,4 +1,4 @@
-import unittest
+from bson.objectid import ObjectId
 import tornado.testing
 
 from persistence.FieldDayListMongo import PersistentFieldDayList as FieldDayList
@@ -54,6 +54,9 @@ class TestReefwatchFieldDay(tornado.testing.AsyncTestCase):
         )
         self.assertIsInstance(fieldDayList, list)
         self.assertGreater(newRecordCount, initialRecordCount)
+        result = self.__collection__.find_one({"_id": ObjectId(newId)})
+        self.assertIsInstance(result, dict)
+        self.assertTrue(any(result))
         
     @classmethod
     def getTestData(cls):
