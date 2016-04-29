@@ -12,6 +12,7 @@ from baseHandler import BaseHandler, BaseEntityListHandler
 from datetime import datetime
 import logging
 logger = logging.getLogger(__name__)
+logger.setLevel(logger.getEffectiveLevel())
 
 
 class FieldDayListHandler(BaseEntityListHandler):
@@ -63,7 +64,8 @@ class FieldDayListHandler(BaseEntityListHandler):
                 )
             fieldDay["date"] = fieldDayDateStr
             fieldDayLocation = self.get_body_argument("location_id")
-            # To-Do: Check that location exists
+            
+            """ Check that location exists """
             locationGetter = self.__persistentLocationEntityObj__
             verifiedLocation = yield locationGetter.get(locationId=fieldDayLocation)
             if verifiedLocation:
@@ -72,6 +74,8 @@ class FieldDayListHandler(BaseEntityListHandler):
                 raise ValueError("The location_id specified ({id}) is not valid".format(id=fieldDayLocation))
 
             fieldDay["location"] = fieldDayLocation
+            
+            """ Get or synthesise Description """
             fieldDayDescription = self.get_body_argument("description", None)
             if not fieldDayDescription:
                 fieldDayDescription = "{loc} - {date}".format(loc=locationDescription, date=fieldDayDateStr)
@@ -94,6 +98,21 @@ class FieldDayListHandler(BaseEntityListHandler):
             )
             self.finish({"message": "{0}".format(errorMessage)})
             return
+
+        fieldDaySetter = self.__persistentEntityListObj__
+        newFieldDayId = yield fieldDaySetter.add(
+            fieldDay=fieldDay
+            )
+
+        self.set_status(201)
+        self.add_header("field_day_id", "{}".format(
+                newFieldDayId
+            )
+        )
+        self.finish(
+            {"message": "New Field Day ({0}) successfully created".format(newFieldDayId)}
+        )
+
 
 class FieldDayHandler(BaseHandler):
 

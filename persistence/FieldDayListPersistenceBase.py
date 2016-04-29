@@ -24,6 +24,10 @@ class PersistentFieldDayListDummy(PersistentFieldDayListBase):
 
     def __init__(self):
         pass
+        
+    @tornado.concurrent.return_future
+    def add(self, callback, fieldDay):
+        callback(str("00000000000000000000000000000"))
 
     @tornado.concurrent.return_future
     def get(self, callback, limit=100, offset=0, **kwargs):
