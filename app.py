@@ -17,6 +17,12 @@ try:
 except:
     print "'localSettings.py' NOT found. Using Dummy instead"
 
+import logging
+
+if not hasattr(options, "log_file"):
+    define("log_file", default="access.log", help="Name of file to which to log")
+
+logging.basicConfig(filename=options.log_file, format='%(asctime)-6s: %(name)s - %(levelname)s - %(message)s')
 
 """ Field Days """
 from fieldDayHandler import FieldDayListHandler, FieldDayHandler
@@ -79,13 +85,6 @@ except NameError:
     from persistence.FieldDayPersistenceBase import PersistentFieldDayDummy
     PersistentFieldDayEntity = PersistentFieldDayDummy()
 
-import logging
-
-if not hasattr(options, "log_file"):
-    define("log_file", default="access.log", help="Name of file to which to log")
-
-logging.basicConfig(filename=options.log_file, format='%(asctime)-6s: %(name)s - %(levelname)s - %(message)s')
-
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -98,7 +97,11 @@ class Application(tornado.web.Application):
 
     def __init__(self):
         settings = dict(
-            debug=options.debug if 'debug' in options else False
+            debug=options.debug if hasattr(options, 'debug') else False
+        )
+
+        self.logger.setLevel(
+            logging.DEBUG if hasattr(options, 'debug') and options.debug else logging.INFO
         )
 
         """
