@@ -6,16 +6,23 @@ __author__    = "Paul Staszyc"
 __copyright__ = "Copyright 2016"
 
 from tornado.gen import coroutine
+import tornado.web
 from baseHandler import BaseHandler, BaseEntityListHandler
 
+from datetime import datetime
 import logging
 logger = logging.getLogger(__name__)
 
 
 class FieldDayListHandler(BaseEntityListHandler):
 
-    def initialize(self, persistentEntityListObj):
+    def initialize(self, persistentEntityListObj, persistentLocationEntityObj):
         self.__persistentEntityListObj__ = persistentEntityListObj
+        self.__persistentLocationEntityObj__ = persistentLocationEntityObj
+
+    def options(self, *args):
+        self.set_header("Access-Control-Allow-Methods", "GET, POST")
+        self.finish()
 
     @coroutine
     def get(self):
@@ -41,6 +48,52 @@ class FieldDayListHandler(BaseEntityListHandler):
         )
         self.finish({"data": fieldDayList})
 
+    @coroutine
+    def post(self):
+        fieldDay = {}
+        try:
+            fieldDayDateStr = self.get_body_argument("date")
+            try:
+                fieldDayDate = datetime.strptime(fieldDayDateStr, "%Y-%m-%d").date()
+            except Exception as exDate:
+                raise ValueError(
+                    "The specified 'date', ({0}) must be a valid date in yyyy-mm-dd format".format(
+                    fieldDayDateStr
+                    )
+                )
+            fieldDay["date"] = fieldDayDateStr
+            fieldDayLocation = self.get_body_argument("location_id")
+            # To-Do: Check that location exists
+            locationGetter = self.__persistentLocationEntityObj__
+            verifiedLocation = yield locationGetter.get(locationId=fieldDayLocation)
+            if verifiedLocation:
+                locationDescription = verifiedLocation["description"]
+            else:
+                raise ValueError("The location_id specified ({id}) is not valid".format(id=fieldDayLocation))
+
+            fieldDay["location"] = fieldDayLocation
+            fieldDayDescription = self.get_body_argument("description", None)
+            if not fieldDayDescription:
+                fieldDayDescription = "{loc} - {date}".format(loc=locationDescription, date=fieldDayDateStr)
+            fieldDay["description"] = fieldDayDescription
+            logger.debug("Description: {0}".format(fieldDayDescription))
+        except (ValueError, tornado.web.MissingArgumentError) as exArgument:
+            errorMessage = exArgument
+            self.set_status(400)
+            self.add_header("error", "{0}".format(errorMessage))
+            self.finish({"message": "{0}".format(errorMessage)})
+            return
+        except Exception as ex:
+            logger.error("{0}".format(ex))
+            errorMessage = "An error occured while attempting to process the new Field Day"
+            self.set_status(500)
+            self.add_header(
+                "error", "{0}".format(
+                    errorMessage
+                )
+            )
+            self.finish({"message": "{0}".format(errorMessage)})
+            return
 
 class FieldDayHandler(BaseHandler):
 

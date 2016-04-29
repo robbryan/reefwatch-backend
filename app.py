@@ -27,6 +27,7 @@ from surveyHandler import SurveyListHandler
 
 """ Locations """
 from persistence.LocationListPersistenceBase import PersistentLocationListDummy as PersistentLocationList
+from persistence.LocationPersistenceDummy import PersistentLocationDummy as PersistentLocationEntity
 from locationHandler import LocationListHandler
 
 """ Sites """
@@ -108,7 +109,14 @@ class Application(tornado.web.Application):
 
         handlers = [
             (r"/", MainHandler),
-            (r"/field_days", FieldDayListHandler, dict(persistentEntityListObj=PersistentFieldDayList)),
+            (
+                r"/field_days",
+                FieldDayListHandler,
+                dict(
+                    persistentEntityListObj=PersistentFieldDayList,
+                    persistentLocationEntityObj=PersistentLocationEntity()
+                )
+            ),
             (r"/field_days/({guid})".format(guid=guidRegex), FieldDayHandler, dict(persistentEntityObj=PersistentFieldDayEntity)),
             (r"/surveys", SurveyListHandler, dict(persistentSurveyListObj=PersistentSurveyList())),
             (r"/locations/({guid})/sites".format(guid=guidRegex), SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),

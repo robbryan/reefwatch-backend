@@ -16,6 +16,7 @@ from surveyHandler import SurveyListHandler
 
 """ Locations """
 from persistence.LocationListPersistenceBase import PersistentLocationListDummy as PersistentLocationList
+from persistence.LocationPersistenceDummy import PersistentLocationDummy as PersistentLocationEntity
 from locationHandler import LocationListHandler
 
 """ Sites """
@@ -34,7 +35,14 @@ class TestListHandlers(unittest.TestCase):
         listenPort = 8989
         cls.__base_address__ = "http://localhost:{0}/".format(listenPort)
         application = tornado.web.Application([
-                (r"/field_days", FieldDayListHandler, dict(persistentEntityListObj=PersistentFieldDayList())),
+                (
+                    r"/field_days",
+                    FieldDayListHandler,
+                    dict(
+                        persistentEntityListObj=PersistentFieldDayList(),
+                        persistentLocationEntityObj=PersistentLocationEntity()
+                    )
+                ),
                 (r'/locations', LocationListHandler, dict(persistentLocationListObj=PersistentLocationList())),
                 (r'/locations/([0-9]+)/sites', SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
                 ]
@@ -59,8 +67,8 @@ class TestListHandlers(unittest.TestCase):
         tornado.ioloop.IOLoop.instance().stop()
 
 
-    def testLocationListGet(self):
-        """ Test getting list of Locations """
+    def testAllListGets(self):
+        """ Test getting list of Locations, Sites and Field Days """
         http_client = tornado.httpclient.AsyncHTTPClient()
 
         for resourcePath in ["locations", "locations/123/sites", "field_days"]:
