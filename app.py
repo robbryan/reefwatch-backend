@@ -73,7 +73,7 @@ try:
 except NameError:
     print "Warning! No persistence engine was specified for Field Day List - See localSettings.py.sample for examples"
     print "Using Dummy persistence instead - That's ok for Demos"
-    from persistence.FieldDayListPersistenceBase import PersistentFieldDayListDummy
+    from persistence.FieldDayPersistenceDummy import PersistentFieldDayListDummy
     PersistentFieldDayList = PersistentFieldDayListDummy()
 
 try:
@@ -82,7 +82,7 @@ try:
 except NameError:
     print "Warning! No persistence engine was specified for Field Day - See localSettings.py.sample for examples"
     print "Using Dummy persistence instead - That's ok for Demos"
-    from persistence.FieldDayPersistenceBase import PersistentFieldDayDummy
+    from persistence.FieldDayPersistenceDummy import PersistentFieldDayDummy
     PersistentFieldDayEntity = PersistentFieldDayDummy()
 
 
