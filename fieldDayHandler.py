@@ -42,7 +42,7 @@ class FieldDayListHandler(BaseEntityListHandler):
             limit=limit,
             offset=offset
             )
-        self.setResponseHeaders(
+        self.setResponseHeadersList(
             pageNum=pageNum,
             pageSize=pageSize,
             totalRecordCount=totalRecordCount
@@ -64,7 +64,7 @@ class FieldDayListHandler(BaseEntityListHandler):
                 )
             fieldDay["date"] = fieldDayDateStr
             fieldDayLocation = self.get_body_argument("location_id")
-            
+
             """ Check that location exists """
             locationGetter = self.__persistentLocationEntityObj__
             verifiedLocation = yield locationGetter.get(locationId=fieldDayLocation)
@@ -74,7 +74,7 @@ class FieldDayListHandler(BaseEntityListHandler):
                 raise ValueError("The location_id specified ({id}) is not valid".format(id=fieldDayLocation))
 
             fieldDay["location"] = fieldDayLocation
-            
+
             """ Get or synthesise Description """
             fieldDayDescription = self.get_body_argument("description", None)
             if not fieldDayDescription:
@@ -105,10 +105,7 @@ class FieldDayListHandler(BaseEntityListHandler):
             )
 
         self.set_status(201)
-        self.add_header("field_day_id", "{}".format(
-                newFieldDayId
-            )
-        )
+        self.setResponseHeadersNewEntity(newFieldDayId)
         self.finish(
             {"message": "New Field Day ({0}) successfully created".format(newFieldDayId)}
         )

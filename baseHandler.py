@@ -67,7 +67,7 @@ class BaseEntityListHandler(BaseHandler):
 
         return (pageSize, pageNum)
 
-    def setResponseHeaders(self, pageNum, pageSize, totalRecordCount):
+    def setResponseHeadersList(self, pageNum, pageSize, totalRecordCount):
         self.set_header("page", "{page_num}".format(page_num = pageNum))
         self.set_header("per_page", "{page_size}".format(page_size = pageSize))
 
@@ -112,7 +112,12 @@ class BaseEntityListHandler(BaseHandler):
 
         self.set_header("Access-Control-Expose-Headers", "X-Total-Count, link, page, per_page")
 
+    def setResponseHeadersNewEntity(self, newId):
+        self.set_header("id", "{0}".format(newId))
+
+        linkHeader = ['<{request_path}/{id}>; rel="self"'.format(request_path=self.__fullyQualifiedRequestPath__, id=newId)]
+        self.set_header("link", ", ".join(linkHeader))
+
 
 if __name__ == "__main__":
     pass
-
