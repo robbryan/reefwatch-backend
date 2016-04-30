@@ -1,6 +1,6 @@
 import unittest
 import tornado.testing
-from persistence.FieldDayPersistenceBase import PersistentFieldDayDummy as EntityDummy
+from persistence.FieldDayPersistenceDummy import PersistentFieldDayDummy as EntityDummy
 
 
 class TestReefwatchFieldDay(tornado.testing.AsyncTestCase):

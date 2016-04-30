@@ -30,7 +30,7 @@ class SiteListHandler(BaseEntityListHandler):
             limit=limit,
             offset=offset
             )
-        self.setResponseHeaders(
+        self.setResponseHeadersList(
             pageNum=pageNum,
             pageSize=pageSize,
             totalRecordCount=totalRecordCount

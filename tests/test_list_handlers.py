@@ -24,7 +24,7 @@ from persistence.SiteListPersistenceBase import PersistentSiteListDummy as Persi
 from siteHandler import SiteListHandler
 
 """ Field Days """
-from persistence.FieldDayListPersistenceBase import PersistentFieldDayListDummy as PersistentFieldDayList
+from persistence.FieldDayPersistenceDummy import PersistentFieldDayListDummy as PersistentFieldDayList
 from fieldDayHandler import FieldDayListHandler
 
 
