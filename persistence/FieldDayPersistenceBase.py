@@ -13,7 +13,12 @@ class PersistentFieldDayBase(object):
         logger.warning("Abstract class created")
         pass
 
-    def get(self):
+    @tornado.concurrent.return_future
+    def get(self, fieldDayId, callback):
+        raise NotImplementedError
+
+    @tornado.concurrent.return_future
+    def update(self, fieldDayId, callback):
         raise NotImplementedError
 
 

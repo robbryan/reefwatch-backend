@@ -25,6 +25,21 @@ class PersistentFieldDay(PersistentFieldDayBase):
 
         callback(result)
 
+    @tornado.concurrent.return_future
+    def update(self, fieldDayId, callback, **kwargs):
+        if type(fieldDayId) == str:
+            fieldDayId = ObjectId(fieldDayId)
+
+        mongoQuery = {
+            "$set": {
+                "$currentDate": {
+                    "last_modified": True
+                }
+            }
+        }
+        result = self.__mongoDbCollection__.update_one({"_id": fieldDayId}, mongoQuery)
+        callback(result.modified_count)
+
 
 if __name__ == "__main__":
     pass

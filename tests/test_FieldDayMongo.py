@@ -11,6 +11,8 @@ class TestReefwatchFieldDay(tornado.testing.AsyncTestCase):
     def setUpClass(cls):
         print "Setup"
         cls.__collection__ = mongomock.MongoClient().db.collection
+        cls.__collection__.insert_one({"id": "FOR UPDATE", "date": "2016-01-25", "location_id": "3000"})
+        cls.__collection__.insert_one({"id": "FOR DELETE", "date": "2016-02-17", "location_id": "4000", "tides": {}})
 
     @classmethod
     def tearDownClass(cls):
@@ -36,3 +38,15 @@ class TestReefwatchFieldDay(tornado.testing.AsyncTestCase):
         fieldDayOperator = FieldDayOperator(self.__collection__)
         fieldDayEntity = yield fieldDayOperator.get(fieldDayId=0)
         self.assertIsNone(fieldDayEntity)
+
+    @tornado.testing.gen_test
+    def test_get_known_field_day(self):
+        result = self.__collection__.find_one({"id": "FOR UPDATE"})
+        fieldDayId = str(result["_id"])
+        fieldDayOperator = FieldDayOperator(self.__collection__)
+        updateCount = yield fieldDayOperator.update(fieldDayId=fieldDayId, tides={"high": {"time": "04:40", "height": 1.94}, "low": {"time": "10:30", "height": 0.53}})
+        self.assertEqual(updateCount, 1)
+        results= self.__collection__.find()
+        for row in results:
+            print row
+        blarg = 10 / 0
