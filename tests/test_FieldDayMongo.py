@@ -46,7 +46,3 @@ class TestReefwatchFieldDay(tornado.testing.AsyncTestCase):
         fieldDayOperator = FieldDayOperator(self.__collection__)
         updateCount = yield fieldDayOperator.update(fieldDayId=fieldDayId, tides={"high": {"time": "04:40", "height": 1.94}, "low": {"time": "10:30", "height": 0.53}})
         self.assertEqual(updateCount, 1)
-        results= self.__collection__.find()
-        for row in results:
-            print row
-        blarg = 10 / 0
