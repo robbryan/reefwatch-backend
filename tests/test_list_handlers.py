@@ -99,22 +99,6 @@ class TestListHandlers(unittest.TestCase):
             self.assertEqual(self.response.code, 200)
 
 
-    @unittest.skip("Skipping")
-    def testSurveyListGet(self):
-        resourcePath = "surveys"
-        """ Test getting list of Locations """
-        http_client = tornado.httpclient.AsyncHTTPClient()
-
-        """ Test with no params """
-        http_request = tornado.httpclient.HTTPRequest(
-            self.__base_address__ + resourcePath, method='GET')
-        http_client.fetch(http_request, self.handle_request)
-        tornado.ioloop.IOLoop.instance().start()
-        self.assertEqual(self.response.code, 200)
-        self.assertTrue("X-Total-Count" in self.response.headers)
-        totalRecordCount = int(self.response.headers["X-Total-Count"])
-
-
 if __name__=="__main__":
     unittest.main()
 
