@@ -11,7 +11,7 @@ define("mongo_database", type=str, group="persistence", default="reefwatch_dev",
 #define("mongo_user", type=str, group="persistence", default=None, help="Username used to authenticate to MongoDB")
 #define("mongo_password", type=str, group="persistence", default=None, help="Password used to authenticate to MongoDB")
 
-""" Define Mongo collection 
+""" Define Mongo collection """
 define("field_day_collection", type=str, group="field_day", default="field_day", help="Name of Field Day collection on MongoDB")
 define("survey_location_collection", type=str, group="location", default="survey_location", help="Name of Survey Location collection on MongoDB")
 define("survey_site_collection", type=str, group="site", default="survey_site", help="Name of Survey Site collection on MongoDB")
