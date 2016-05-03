@@ -1,0 +1,23 @@
+import unittest
+import tornado.testing
+from persistence.FieldDayPersistenceDummy import PersistentFieldDayTidesDummy as EntityDummy
+
+
+class TestReefwatchFieldDayTides(tornado.testing.AsyncTestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        print "Setup"
+
+    @classmethod
+    def tearDownClass(cls):
+        print "Teardown"
+
+    @tornado.testing.gen_test
+    def test_get_tides_for_field_day(self):
+        dummyEntityGetter = EntityDummy()
+        dummyEntity = yield dummyEntityGetter.get(fieldDayId="1100")
+        print dummyEntity
+        self.assertIsInstance(dummyEntity, dict)
+        self.assertTrue(any(dummyEntity))
+

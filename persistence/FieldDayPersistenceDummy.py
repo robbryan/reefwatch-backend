@@ -47,6 +47,24 @@ class PersistentFieldDayDummy(PersistentFieldDayBase):
         callback(filteredList[0] if len(filteredList) > 0 else None)
 
 
+class PersistentFieldDayTidesDummy(PersistentFieldDayBase):
+
+    def __init__(self):
+        pass
+
+    @tornado.concurrent.return_future
+    def get(self, fieldDayId, callback, **kwargs):
+
+        filteredList = filter(lambda x: x["id"] == fieldDayId, __dummyData__)
+
+        tides = None
+        if len(filteredList) > 0:
+            fieldDay = filteredList[0]
+            tides = fieldDay["tides"] if "tides" in fieldDay else None
+
+        callback(tides)
+
+
 __dummyData__ = [
     {
         "id": "1000",
@@ -117,7 +135,8 @@ __dummyData__ = [
         "description": "Aldinga South - March 2015",
         "location_id": "2000",
         "leader_id": "1000",
-        "sites": []
+        "sites": [],
+        "tides": {"high": {"time": "04:17", "height": 2.01}}
     },
     {
         "id": "1200",
