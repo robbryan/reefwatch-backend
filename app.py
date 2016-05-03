@@ -14,7 +14,7 @@ from tornado.options import define, options
 """ Local Settings """
 try:
   import localSettings
-except:
+except ImportError:
     print "'localSettings.py' NOT found. Using Dummy instead"
 
 import logging
