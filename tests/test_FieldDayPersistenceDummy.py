@@ -16,7 +16,7 @@ class TestReefwatchFieldDay(tornado.testing.AsyncTestCase):
     @tornado.testing.gen_test
     def test_get_by_id(self):
         dummyEntityGetter = EntityDummy()
-        dummyEntity = yield dummyEntityGetter.get(fieldDayId="90e49f7a-087b-11e6-ad28-902b34626bbb")
+        dummyEntity = yield dummyEntityGetter.get(fieldDayId="1100")
         self.assertIsInstance(dummyEntity, dict)
         self.assertTrue(any(dummyEntity))
 
