@@ -64,6 +64,29 @@ class PersistentFieldDayTidesDummy(PersistentFieldDayBase):
 
         callback(tides)
 
+    @tornado.concurrent.return_future
+    def update(self, fieldDayId, callback, **kwargs):
+        filteredList = filter(lambda x: x["id"] == fieldDayId, __dummyData__)
+
+        tides = {}
+        if len(filteredList) > 0:
+            fieldDay = filteredList[0]
+            tides = fieldDay["tides"] if "tides" in fieldDay else {}
+
+        updateCount = 0
+        if "high" in kwargs:
+            tides["high"] = kwargs["high"]
+            updateCount += 1
+        if "low" in kwargs:
+            tides["low"] = kwargs["low"]
+            updateCount += 1
+
+        if any(tides):
+            fieldDay["tides"] = tides
+
+        callback(updateCount)
+
+
 
 __dummyData__ = [
     {

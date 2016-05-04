@@ -144,5 +144,38 @@ class FieldDayHandler(BaseHandler):
         else:
             self.finish(fieldDayEntity)
 
+
+class FieldDayTides(BaseHandler):
+
+    def initialize(self, persistentEntityObj):
+        self.__persistentEntityObj__ = persistentEntityObj
+
+    @coroutine
+    def get(self, fieldDayId):
+        entityGetter = self.__persistentEntityObj__
+        try:
+            fieldDayTidesEntity = yield entityGetter.get(fieldDayId=fieldDayId)
+            if not (fieldDayTidesEntity or any(fieldDayTidesEntity)):
+                raise KeyError("The Tides for Field Day you have requested do not exist")
+        except KeyError as exNotFound:
+            errorMessage = exNotFound
+            self.set_status(404)
+            self.add_header("error", "{0}".format(errorMessage))
+            self.finish({"message": "{0}".format(errorMessage)})
+            return
+        except Exception as ex:
+            logger.error("{0}".format(ex))
+            errorMessage = "An error occured while attempting to retireve the requested Field Day Tides"
+            self.set_status(500)
+            self.add_header(
+                "error", "{0}".format(
+                    errorMessage
+                )
+            )
+            self.finish({"message": "{0}".format(errorMessage)})
+            return
+        else:
+            self.finish(fieldDayTidesEntity)
+
 if __name__ == "__main__":
     pass
