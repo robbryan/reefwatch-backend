@@ -44,5 +44,7 @@ class TestReefwatchFieldDay(tornado.testing.AsyncTestCase):
         result = self.__collection__.find_one({"id": "FOR UPDATE"})
         fieldDayId = str(result["_id"])
         fieldDayOperator = FieldDayOperator(self.__collection__)
+        updateCount = yield fieldDayOperator.update(fieldDayId=fieldDayId, high={"time": "04:40", "height": 1.94}, low={"time": "10:30", "height": 0.53})
+        self.assertEqual(updateCount, 1)
         updateCount = yield fieldDayOperator.update(fieldDayId=fieldDayId, tides={"high": {"time": "04:40", "height": 1.94}, "low": {"time": "10:30", "height": 0.53}})
         self.assertEqual(updateCount, 1)
