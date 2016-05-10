@@ -10,6 +10,8 @@ import datetime
 import os
 import logging
 
+import mongomock
+
 """ Surveys """
 from persistence.SurveyListPersistenceBase import PersistentSurveyListDummy as PersistentSurveyList
 from surveyHandler import SurveyListHandler
@@ -26,6 +28,12 @@ from siteHandler import SiteListHandler
 """ Field Days """
 from persistence.FieldDayPersistenceDummy import PersistentFieldDayListDummy as PersistentFieldDayList
 from fieldDayHandler import FieldDayListHandler
+from persistence.FieldDayListMongo import PersistentFieldDayList as FieldDayListMongo
+import fieldDayTestData
+mongoCollectionFieldDay = mongomock.MongoClient().db.collection
+for obj in fieldDayTestData.fieldDayList:
+    mongoCollectionFieldDay.insert(obj)
+FieldDayListMongo = FieldDayListMongo(mongoCollectionFieldDay)
 
 
 class TestListHandlers(unittest.TestCase):
@@ -36,15 +44,23 @@ class TestListHandlers(unittest.TestCase):
         cls.__base_address__ = "http://localhost:{0}/".format(listenPort)
         application = tornado.web.Application([
                 (
-                    r"/field_days",
+                    r"/dummy/field_days",
                     FieldDayListHandler,
                     dict(
                         persistentEntityListObj=PersistentFieldDayList(),
                         persistentLocationEntityObj=PersistentLocationEntity()
                     )
                 ),
-                (r'/locations', LocationListHandler, dict(persistentLocationListObj=PersistentLocationList())),
-                (r'/locations/([0-9]+)/sites', SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
+                (
+                    r"/mongo/field_days",
+                    FieldDayListHandler,
+                    dict(
+                        persistentEntityListObj=FieldDayListMongo,
+                        persistentLocationEntityObj=PersistentLocationEntity()
+                    )
+                ),
+                (r'/dummy/locations', LocationListHandler, dict(persistentLocationListObj=PersistentLocationList())),
+                (r'/dummy/locations/([0-9]+)/sites', SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
                 ]
             )
         application.settings = dict(
@@ -71,7 +87,7 @@ class TestListHandlers(unittest.TestCase):
         """ Test getting list of Locations, Sites and Field Days """
         http_client = tornado.httpclient.AsyncHTTPClient()
 
-        for resourcePath in ["locations", "locations/123/sites", "field_days"]:
+        for resourcePath in ["dummy/locations", "dummy/locations/123/sites", "dummy/field_days", "mongo/field_days"]:
 
             """ Test with no params """
             http_request = tornado.httpclient.HTTPRequest(
