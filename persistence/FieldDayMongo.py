@@ -22,7 +22,8 @@ class PersistentFieldDay(PersistentFieldDayBase):
 
         mongoQuery = {"_id": fieldDayId}
         result = self.__mongoDbCollection__.find_one(mongoQuery)
-
+        if result and "_id" in result:
+            result["id"] = str(result.pop("_id"))
         callback(result)
 
     @tornado.concurrent.return_future

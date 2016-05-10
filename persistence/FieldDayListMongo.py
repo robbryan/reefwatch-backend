@@ -49,8 +49,8 @@ class PersistentFieldDayList(PersistentFieldDayListBase):
         resultList = list()
         for result in fieldDayCursor:
             fieldDay = result
-            fieldDay["id"] = str(fieldDay["_id"])
-            del fieldDay["_id"]
+            # Replace ObjectId with string its representation
+            fieldDay["id"] = str(fieldDay.pop("_id"))
             # do transformations on fieldDay
             resultList.append(fieldDay)
 
