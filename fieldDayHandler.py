@@ -22,7 +22,15 @@ class FieldDayListHandler(BaseEntityListHandler):
         self.__persistentLocationEntityObj__ = persistentLocationEntityObj
 
     def options(self, *args):
-        self.set_header("Access-Control-Allow-Methods", "GET, POST")
+        allowedMethods = list(["OPTIONS", "GET"])
+        try:
+            user = self.get_current_user()
+            if user and any(user):
+                allowedMethods.extend(["POST"]) # PUT and DELETE to follow
+        except Exception as ex:
+            logger.error(ex)
+
+        self.set_header("Access-Control-Allow-Methods", ",".join(allowedMethods))
         self.finish()
 
     @coroutine
@@ -49,6 +57,7 @@ class FieldDayListHandler(BaseEntityListHandler):
         )
         self.finish({"data": fieldDayList})
 
+    @tornado.web.authenticated
     @coroutine
     def post(self):
         fieldDay = {}

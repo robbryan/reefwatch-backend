@@ -40,6 +40,8 @@ from locationHandler import LocationListHandler
 from persistence.SiteListPersistenceBase import PersistentSiteListDummy as PersistentSiteList
 from siteHandler import SiteListHandler
 
+from baseHandler import BaseAuthenticatedHandler
+
 import importlib
 
 """
@@ -84,6 +86,8 @@ except NameError:
     print "Using Dummy persistence instead - That's ok for Demos"
     from persistence.FieldDayPersistenceDummy import PersistentFieldDayDummy
     PersistentFieldDayEntity = PersistentFieldDayDummy()
+    
+from authHandler import LogoutHandler
 
 
 class MainHandler(tornado.web.RequestHandler):
@@ -96,8 +100,17 @@ class Application(tornado.web.Application):
     logger = logging.getLogger('ReefWatch Backend Event logger')
 
     def __init__(self):
+
+        try:
+            assert(hasattr(options, 'cookie_secret'))
+            assert(options.cookie_secret)
+        except AssertionError:
+            print "You must specify a 'cookie_secret' for encrypting cookies."
+            raise SystemExit("Exiting...")
+
         settings = dict(
-            debug=options.debug if hasattr(options, 'debug') else False
+            debug=options.debug if hasattr(options, 'debug') else False,
+            cookie_secret=options.cookie_secret
         )
 
         self.logger.setLevel(
@@ -123,8 +136,34 @@ class Application(tornado.web.Application):
             (r"/field_days/({guid})".format(guid=guidRegex), FieldDayHandler, dict(persistentEntityObj=PersistentFieldDayEntity)),
             (r"/surveys", SurveyListHandler, dict(persistentSurveyListObj=PersistentSurveyList())),
             (r"/locations/({guid})/sites".format(guid=guidRegex), SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
-            (r"/locations", LocationListHandler, dict(persistentLocationListObj=PersistentLocationList()))
+            (r"/locations", LocationListHandler, dict(persistentLocationListObj=PersistentLocationList())),
+            (r"/auth/success", BaseAuthenticatedHandler),
+            (r"/auth/logout", LogoutHandler)
         ]
+
+        # Google OAuth2 Settings
+        if hasattr(options, "google_client_id"):
+            google_oauth = {"key": options.google_client_id, "secret": options.google_client_secret}
+            settings["google_oauth"] = google_oauth
+            from authHandler import GoogleLoginHandler
+            handlers.append((
+                r"/auth/login/google",
+                GoogleLoginHandler,
+                dict(callbackPath="auth/callback/google")
+            ))
+            handlers.append((
+                r"/auth/callback/google",
+                GoogleLoginHandler,
+                dict(callbackPath="auth/callback/google")
+            ))
+        else:
+            # Dummy Authentication
+            print "Google OAuth2 authentication not set up. Using dummy instead"
+            from authHandlerDummy import DummyLoginHandler
+            handlers.append((
+                r"/auth/login/dummy",
+                DummyLoginHandler
+            ))
 
         tornado.web.Application.__init__(self, handlers, **settings)
 
@@ -132,7 +171,7 @@ class Application(tornado.web.Application):
 def main():
     if not hasattr(options, "port"):
         define("port", default="9880", help="Port on which the HTTP server will listen")
-    
+
     if not hasattr(options, "debug"):
         define("debug", default=False, help="Set some logging options + auto-reload on file change")
     tornado.options.parse_command_line()

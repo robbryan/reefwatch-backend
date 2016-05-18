@@ -35,6 +35,10 @@ class BaseAuthenticatedHandler(BaseHandler):
         if "user_id" in self.current_user:
             self.__user_id__ = self.current_user["user_id"]
 
+    @tornado.web.authenticated
+    def get(self):
+        self.finish("Hello, {user}".format(user=self.current_user["handle"]))
+
 
 class BaseEntityListHandler(BaseHandler):
 
