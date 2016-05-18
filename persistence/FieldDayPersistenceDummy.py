@@ -17,7 +17,10 @@ class PersistentFieldDayListDummy(PersistentFieldDayListBase):
 
     @tornado.concurrent.return_future
     def add(self, callback, fieldDay):
-        callback(str(uuid.uuid1()))
+        newId = str(uuid.uuid1())
+        fieldDay["id"] = newId
+        __dummyData__.append(fieldDay)
+        callback(newId)
 
     @tornado.concurrent.return_future
     def get(self, callback, limit=100, offset=0, **kwargs):
