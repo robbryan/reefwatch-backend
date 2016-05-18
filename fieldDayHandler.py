@@ -125,6 +125,18 @@ class FieldDayHandler(BaseHandler):
     def initialize(self, persistentEntityObj):
         self.__persistentEntityObj__ = persistentEntityObj
 
+    def options(self, *args):
+        allowedMethods = list(["OPTIONS", "GET"])
+        try:
+            user = self.get_current_user()
+            if user and any(user):
+                pass # POST, PUT and DELETE to follow
+        except Exception as ex:
+            logger.error(ex)
+
+        self.set_header("Access-Control-Allow-Methods", ",".join(allowedMethods))
+        self.finish()
+
     @coroutine
     def get(self, fieldDayId):
         entityGetter = self.__persistentEntityObj__
@@ -157,6 +169,18 @@ class FieldDayTidesHandler(BaseHandler):
 
     def initialize(self, persistentEntityObj):
         self.__persistentEntityObj__ = persistentEntityObj
+
+    def options(self, *args):
+        allowedMethods = list(["OPTIONS", "GET"])
+        try:
+            user = self.get_current_user()
+            if user and any(user):
+                pass # POST, PUT and DELETE to follow
+        except Exception as ex:
+            logger.error(ex)
+
+        self.set_header("Access-Control-Allow-Methods", ",".join(allowedMethods))
+        self.finish()
 
     @coroutine
     def get(self, fieldDayId):
