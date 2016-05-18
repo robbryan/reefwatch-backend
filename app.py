@@ -25,7 +25,7 @@ if not hasattr(options, "log_file"):
 logging.basicConfig(filename=options.log_file, format='%(asctime)-6s: %(name)s - %(levelname)s - %(message)s')
 
 """ Field Days """
-from fieldDayHandler import FieldDayListHandler, FieldDayHandler
+from fieldDayHandler import FieldDayListHandler, FieldDayHandler, FieldDayTidesHandler
 
 """ Surveys """
 from persistence.SurveyListPersistenceBase import PersistentSurveyListDummy as PersistentSurveyList
@@ -69,6 +69,8 @@ else:
         PersistentFieldDayModule = importlib.import_module("persistence.FieldDayMongo")
         PersistentFieldDayEntity = PersistentFieldDayModule.PersistentFieldDay(mongoDb[fieldDayOptions["field_day_collection"]])
 
+        PersistentFieldDayTidesEntity = PersistentFieldDayModule.PersistentFieldDayTides(mongoDb[fieldDayOptions["field_day_collection"]])
+
 try:
     if PersistentFieldDayList:
         pass
@@ -84,9 +86,12 @@ try:
 except NameError:
     print "Warning! No persistence engine was specified for Field Day - See localSettings.py.sample for examples"
     print "Using Dummy persistence instead - That's ok for Demos"
-    from persistence.FieldDayPersistenceDummy import PersistentFieldDayDummy
+    from persistence.FieldDayPersistenceDummy import PersistentFieldDayDummy, PersistentFieldDayTidesDummy
     PersistentFieldDayEntity = PersistentFieldDayDummy()
-    
+
+    from persistence.FieldDayPersistenceDummy import PersistentFieldDayDummy, PersistentFieldDayTidesDummy
+    PersistentFieldDayTidesEntity = PersistentFieldDayTidesDummy()
+
 from authHandler import LogoutHandler
 
 
@@ -133,6 +138,7 @@ class Application(tornado.web.Application):
                     persistentLocationEntityObj=PersistentLocationEntity()
                 )
             ),
+            (r"/field_days/({guid})/tides".format(guid=guidRegex), FieldDayTidesHandler, dict(persistentEntityObj=PersistentFieldDayTidesEntity)),
             (r"/field_days/({guid})".format(guid=guidRegex), FieldDayHandler, dict(persistentEntityObj=PersistentFieldDayEntity)),
             (r"/surveys", SurveyListHandler, dict(persistentSurveyListObj=PersistentSurveyList())),
             (r"/locations/({guid})/sites".format(guid=guidRegex), SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),

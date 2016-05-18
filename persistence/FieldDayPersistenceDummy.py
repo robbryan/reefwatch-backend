@@ -46,7 +46,6 @@ class PersistentFieldDayDummy(PersistentFieldDayBase):
     def get(self, fieldDayId, callback, **kwargs):
 
         filteredList = filter(lambda x: x["id"] == fieldDayId, __dummyData__)
-
         callback(filteredList[0] if len(filteredList) > 0 else None)
 
 
@@ -93,7 +92,7 @@ class PersistentFieldDayTidesDummy(PersistentFieldDayBase):
 
 __dummyData__ = [
     {
-        "id": "1000",
+        "id": "190c6466-1cac-11e6-9721-74e543c00227",
         "date": "2015-03-05",
         "description": "Aldinga North - March 2015",
         "location_id": "1000",

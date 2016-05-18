@@ -130,8 +130,7 @@ class FieldDayHandler(BaseHandler):
         entityGetter = self.__persistentEntityObj__
         try:
             fieldDayEntity = yield entityGetter.get(fieldDayId=fieldDayId)
-            logger.info(fieldDayEntity)
-            if not (fieldDayEntity or any(fieldDayEntity)):
+            if (not fieldDayEntity or not any(fieldDayEntity)):
                 raise KeyError("The Field Day you have requested does not exist")
         except KeyError as exNotFound:
             errorMessage = exNotFound
@@ -154,7 +153,7 @@ class FieldDayHandler(BaseHandler):
             self.finish(fieldDayEntity)
 
 
-class FieldDayTides(BaseHandler):
+class FieldDayTidesHandler(BaseHandler):
 
     def initialize(self, persistentEntityObj):
         self.__persistentEntityObj__ = persistentEntityObj
@@ -164,7 +163,7 @@ class FieldDayTides(BaseHandler):
         entityGetter = self.__persistentEntityObj__
         try:
             fieldDayTidesEntity = yield entityGetter.get(fieldDayId=fieldDayId)
-            if not (fieldDayTidesEntity or any(fieldDayTidesEntity)):
+            if (not fieldDayTidesEntity or not any(fieldDayTidesEntity)):
                 raise KeyError("The Tides for Field Day you have requested do not exist")
         except KeyError as exNotFound:
             errorMessage = exNotFound
