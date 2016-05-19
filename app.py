@@ -60,37 +60,38 @@ else:
         mongoDb = mongoClient[persistenceOptions["mongo_database"]]
         if "mongo_user" in persistenceOptions:
             mongoDb.authenticate(persistenceOptions["mongo_user"], persistenceOptions["mongo_password"])
+    else:
+        noMongoMessage = "Warning! No persistence engine was specified for Field Day List - See localSettings.py.sample for examples"
+        print noMongoMessage
+        print "Using Dummy persistence instead - That's ok for Demos"
+        
 
-        PersistentFieldDayListModule = importlib.import_module("persistence.FieldDayListMongo")
+        from mongomock import MongoClient
+        mongoClient = MongoClient()
+        mongoDb = mongoClient.db
+
+    PersistentFieldDayListModule = importlib.import_module("persistence.FieldDayListMongo")
+    try:
         fieldDayOptions = options.group_dict("field_day")
-        PersistentFieldDayList = PersistentFieldDayListModule.PersistentFieldDayList(
-            mongoDb[fieldDayOptions["field_day_collection"]]
-        )
-        PersistentFieldDayModule = importlib.import_module("persistence.FieldDayMongo")
-        PersistentFieldDayEntity = PersistentFieldDayModule.PersistentFieldDay(mongoDb[fieldDayOptions["field_day_collection"]])
+    except KeyError as exNoMongoOptions:
+        fieldDayOptions = {}
 
-        PersistentFieldDayTidesEntity = PersistentFieldDayModule.PersistentFieldDayTides(mongoDb[fieldDayOptions["field_day_collection"]])
+    if "field_day_collection" not in fieldDayOptions:
+        fieldDayOptions["field_day_collection"] = "field_day"
 
-try:
-    if PersistentFieldDayList:
-        pass
-except NameError:
-    print "Warning! No persistence engine was specified for Field Day List - See localSettings.py.sample for examples"
-    print "Using Dummy persistence instead - That's ok for Demos"
-    from persistence.FieldDayPersistenceDummy import PersistentFieldDayListDummy
-    PersistentFieldDayList = PersistentFieldDayListDummy()
+    PersistentFieldDayList = PersistentFieldDayListModule.PersistentFieldDayList(
+        mongoDb[fieldDayOptions["field_day_collection"]]
+    )
 
-try:
-    if PersistentFieldDayEntity:
-        pass
-except NameError:
-    print "Warning! No persistence engine was specified for Field Day - See localSettings.py.sample for examples"
-    print "Using Dummy persistence instead - That's ok for Demos"
-    from persistence.FieldDayPersistenceDummy import PersistentFieldDayDummy, PersistentFieldDayTidesDummy
-    PersistentFieldDayEntity = PersistentFieldDayDummy()
+    PersistentFieldDayModule = importlib.import_module("persistence.FieldDayMongo")
+    PersistentFieldDayEntity = PersistentFieldDayModule.PersistentFieldDay(
+        mongoDb[fieldDayOptions["field_day_collection"]]
+    )
 
-    from persistence.FieldDayPersistenceDummy import PersistentFieldDayDummy, PersistentFieldDayTidesDummy
-    PersistentFieldDayTidesEntity = PersistentFieldDayTidesDummy()
+    PersistentFieldDayTidesEntity = PersistentFieldDayModule.PersistentFieldDayTides(
+        mongoDb[fieldDayOptions["field_day_collection"]]
+    )
+
 
 from authHandler import LogoutHandler
 
@@ -127,6 +128,7 @@ class Application(tornado.web.Application):
             Case-insensitive. With or without dashes. No curly braces
         """
         guidRegex = r"[0-9A-Fa-f]{8}-*[0-9A-Fa-f]{4}-*[0-9A-Fa-f]{4}-*[0-9A-Fa-f]{4}-*[0-9A-Fa-f]{12}"
+        mongoIdRegex = r"[0-9A-Fa-f]{24}"
 
         handlers = [
             (r"/", MainHandler),
@@ -140,6 +142,7 @@ class Application(tornado.web.Application):
             ),
             (r"/field_days/({guid})/tides".format(guid=guidRegex), FieldDayTidesHandler, dict(persistentEntityObj=PersistentFieldDayTidesEntity)),
             (r"/field_days/({guid})".format(guid=guidRegex), FieldDayHandler, dict(persistentEntityObj=PersistentFieldDayEntity)),
+            (r"/field_days/({id})".format(id=mongoIdRegex), FieldDayHandler, dict(persistentEntityObj=PersistentFieldDayEntity)),
             (r"/surveys", SurveyListHandler, dict(persistentSurveyListObj=PersistentSurveyList())),
             (r"/locations/({guid})/sites".format(guid=guidRegex), SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
             (r"/locations", LocationListHandler, dict(persistentLocationListObj=PersistentLocationList())),
