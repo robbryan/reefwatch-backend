@@ -17,7 +17,7 @@ class PersistentFieldDay(PersistentFieldDayBase):
 
     @tornado.concurrent.return_future
     def get(self, fieldDayId, callback, **kwargs):
-        if type(fieldDayId) == str:
+        if type(fieldDayId) in [str, unicode]:
             fieldDayId = ObjectId(fieldDayId)
 
         mongoQuery = {"_id": fieldDayId}
