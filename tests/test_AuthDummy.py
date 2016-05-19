@@ -1,11 +1,6 @@
 import tornado.testing
-import tornado.httpserver 
-import tornado.httpclient 
-import tornado.ioloop 
 import tornado.web
-from tornado.httputil import HTTPHeaders
 import tornado.escape
-import unittest
 
 from authHandlerDummy import DummyLoginHandler
 from authHandler import LogoutHandler
@@ -106,10 +101,6 @@ class TestDummyAuthHandler(tornado.testing.AsyncHTTPTestCase):
             )
         return application
 
-    def handle_request(self, response):
-        self.response = response
-        tornado.ioloop.IOLoop.instance().stop()
-
     def test_loginWorkflow(self):
         """
             Test workflow from redirect when not authenticated to successfull authenticated request to successful logout
@@ -146,5 +137,5 @@ class TestDummyAuthHandler(tornado.testing.AsyncHTTPTestCase):
 
 
 if __name__ == "__main__":
-    unittest.main()
+    tornado.testing.main()
 
