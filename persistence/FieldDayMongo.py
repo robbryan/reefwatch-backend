@@ -42,7 +42,7 @@ class PersistentFieldDay(PersistentFieldDayBase):
         callback(result.modified_count)
 
 
-class PersistentFieldTidesDay(PersistentFieldDayBase):
+class PersistentFieldDayTides(PersistentFieldDayBase):
 
     def __init__(self, mongoDbCollection):
         self.__mongoDbCollection__ = mongoDbCollection
