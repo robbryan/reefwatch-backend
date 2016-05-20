@@ -55,7 +55,7 @@ class PersistentFieldDayTides(PersistentFieldDayBase):
         mongoQuery = {"_id": fieldDayId}
         result = self.__mongoDbCollection__.find_one(mongoQuery, {"tides": 1})
 
-        callback(result["tides"] if "tides" in result else None)
+        callback(result["tides"] if result and "tides" in result else None)
 
     @tornado.concurrent.return_future
     def update(self, fieldDayId, callback, **kwargs):
