@@ -18,6 +18,19 @@ class PersistentSiteListBase(object):
         raise NotImplementedError
 
 
+class PersistentFieldDaySiteListBase(object):
+
+    def __init__(self):
+        logger.warning("Abstract class created")
+        pass
+
+    def add(self):
+        raise NotImplementedError
+
+    def get(self):
+        raise NotImplementedError
+
+
 class PersistentSiteListDummy(PersistentSiteListBase):
 
     def __init__(self):

@@ -38,7 +38,7 @@ from locationHandler import LocationListHandler
 
 """ Sites """
 from persistence.SiteListPersistenceBase import PersistentSiteListDummy as PersistentSiteList
-from siteHandler import SiteListHandler
+from siteHandler import SiteListHandler, FieldDaySiteListHandler
 
 from baseHandler import BaseAuthenticatedHandler
 
@@ -111,6 +111,11 @@ else:
         mongoDb[fieldDayOptions["field_day_collection"]]
     )
 
+    PersistentFieldDaySiteListModule = importlib.import_module("persistence.FieldDaySiteListMongo")
+    PersistentFieldDaySiteList = PersistentFieldDaySiteListModule.PersistentFieldDaySiteList(
+        mongoDb[fieldDayOptions["field_day_collection"]]
+    )
+
 
 from authHandler import LogoutHandler
 
@@ -159,21 +164,19 @@ class Application(tornado.web.Application):
                     persistentLocationEntityObj=PersistentLocationEntity()
                 )
             ),
-            (r"/field_days/({guid})/tides".format(guid=guidRegex), FieldDayTidesHandler, dict(persistentEntityObj=PersistentFieldDayTidesEntity)),
             (r"/field_days/({id})/tides".format(id=mongoIdRegex), FieldDayTidesHandler, dict(persistentEntityObj=PersistentFieldDayTidesEntity)),
-            (r"/field_days/({guid})".format(guid=guidRegex), FieldDayHandler, dict(persistentEntityObj=PersistentFieldDayEntity)),
             (
-                r"/field_days/({guid})/surveys".format(guid=guidRegex),
+                r"/field_days/({id})/surveys".format(id=mongoIdRegex),
                 FieldDaySurveyListHandler,
                 dict(
                     persistentFieldDaySurveyListObj=PersistentFieldDaySurveyList
                 )
             ),
             (
-                r"/field_days/({id})/surveys".format(id=mongoIdRegex),
-                FieldDaySurveyListHandler,
+                r"/field_days/({id})/sites".format(id=mongoIdRegex),
+                FieldDaySiteListHandler,
                 dict(
-                    persistentFieldDaySurveyListObj=PersistentFieldDaySurveyList
+                    persistentFieldDaySiteListObj=PersistentFieldDaySiteList
                 )
             ),
             (r"/field_days/({id})".format(id=mongoIdRegex), FieldDayHandler, dict(persistentEntityObj=PersistentFieldDayEntity)),
