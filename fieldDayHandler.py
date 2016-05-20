@@ -143,7 +143,7 @@ class FieldDayHandler(BaseHandler):
         try:
             fieldDayEntity = yield entityGetter.get(fieldDayId=fieldDayId)
             if (not fieldDayEntity or not any(fieldDayEntity)):
-                raise KeyError("The Field Day you have requested does not exist")
+                raise KeyError("Tides have not been recorded for this Field Day")
         except KeyError as exNotFound:
             errorMessage = exNotFound
             self.set_status(404)
