@@ -8,8 +8,8 @@ import logging
 import mongomock
 
 """ Surveys """
-from persistence.SurveyListPersistenceBase import PersistentSurveyListDummy as PersistentSurveyList
-from surveyHandler import SurveyListHandler
+from persistence.SurveyListPersistenceBase import PersistentSurveyTypeListDummy as PersistentSurveyList
+from surveyHandler import SurveyTypeListHandler
 
 """ Locations """
 from persistence.LocationListPersistenceBase import PersistentLocationListDummy as PersistentLocationList

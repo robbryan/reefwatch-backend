@@ -1,6 +1,6 @@
 import unittest
 from nose.tools import *
-from persistence.SurveyListPersistenceBase import PersistentSurveyListDummy
+from persistence.SurveyListPersistenceBase import PersistentSurveyTypeListDummy
 
 
 class TestReefwatchSite(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestReefwatchSite(unittest.TestCase):
         print "Teardown"
 
     def test_basic(self):
-        dummySurveyListGetter = PersistentSurveyListDummy()
+        dummySurveyListGetter = PersistentSurveyTypeListDummy()
         dummySurveyList = dummySurveyListGetter.get(limit=10, offset=0, query="type='active'")
         self.assertIsInstance(dummySurveyList, list)
         print "I RAN!"

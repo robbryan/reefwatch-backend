@@ -5,7 +5,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class PersistentSurveyListBase(object):
+class PersistentSurveyTypeListBase(object):
 
     def __init__(self):
         logger.warning("Abstract class created")
@@ -18,7 +18,20 @@ class PersistentSurveyListBase(object):
         raise NotImplementedError
 
 
-class PersistentSurveyListDummy(PersistentSurveyListBase):
+class PersistentFieldDaySurveyListBase(object):
+
+    def __init__(self):
+        logger.warning("Abstract class created")
+        pass
+
+    def add(self):
+        raise NotImplementedError
+
+    def get(self):
+        raise NotImplementedError
+
+
+class PersistentSurveyTypeListDummy(PersistentSurveyTypeListBase):
 
     def __init__(self):
         pass
