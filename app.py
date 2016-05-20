@@ -28,8 +28,8 @@ logging.basicConfig(filename=options.log_file, format='%(asctime)-6s: %(name)s -
 from fieldDayHandler import FieldDayListHandler, FieldDayHandler, FieldDayTidesHandler
 
 """ Surveys """
-from persistence.SurveyListPersistenceBase import PersistentSurveyListDummy as PersistentSurveyList
-from surveyHandler import SurveyListHandler
+from persistence.SurveyListPersistenceBase import PersistentSurveyTypeListDummy as PersistentSurveyTypeList
+from surveyHandler import SurveyTypeListHandler, FieldDaySurveyListHandler
 
 """ Locations """
 from persistence.LocationListPersistenceBase import PersistentLocationListDummy as PersistentLocationList
@@ -64,11 +64,25 @@ else:
         noMongoMessage = "Warning! No persistence engine was specified for Field Day List - See localSettings.py.sample for examples"
         print noMongoMessage
         print "Using Dummy persistence instead - That's ok for Demos"
-        
 
         from mongomock import MongoClient
         mongoClient = MongoClient()
+
         mongoDb = mongoClient.db
+        try:
+            import demo.fieldDayDemoData
+            if hasattr(options, "field_day_collection"):
+                fieldDayCollection = mongoDb[options.field_day_collection]
+            else:
+                fieldDayCollection = mongoDb["field_day"]
+            for fieldDay in demo.fieldDayDemoData.fieldDayList:
+                fieldDayCollection.insert(fieldDay)
+
+        except ImportError:
+            print "Unable to locate fieldDayDemoData in demo. No Demo data available" 
+        except Exception as ex:
+            print ex
+            print "Unable to load fieldDayList from fieldDayDemoData. No Demo data available"
 
     PersistentFieldDayListModule = importlib.import_module("persistence.FieldDayListMongo")
     try:
@@ -89,6 +103,11 @@ else:
     )
 
     PersistentFieldDayTidesEntity = PersistentFieldDayModule.PersistentFieldDayTides(
+        mongoDb[fieldDayOptions["field_day_collection"]]
+    )
+
+    PersistentFieldDaySurveyListModule = importlib.import_module("persistence.FieldDaySurveyListMongo")
+    PersistentFieldDaySurveyList = PersistentFieldDaySurveyListModule.PersistentFieldDaySurveyList(
         mongoDb[fieldDayOptions["field_day_collection"]]
     )
 
@@ -141,9 +160,24 @@ class Application(tornado.web.Application):
                 )
             ),
             (r"/field_days/({guid})/tides".format(guid=guidRegex), FieldDayTidesHandler, dict(persistentEntityObj=PersistentFieldDayTidesEntity)),
+            (r"/field_days/({id})/tides".format(id=mongoIdRegex), FieldDayTidesHandler, dict(persistentEntityObj=PersistentFieldDayTidesEntity)),
             (r"/field_days/({guid})".format(guid=guidRegex), FieldDayHandler, dict(persistentEntityObj=PersistentFieldDayEntity)),
+            (
+                r"/field_days/({guid})/surveys".format(guid=guidRegex),
+                FieldDaySurveyListHandler,
+                dict(
+                    persistentFieldDaySurveyListObj=PersistentFieldDaySurveyList
+                )
+            ),
+            (
+                r"/field_days/({id})/surveys".format(id=mongoIdRegex),
+                FieldDaySurveyListHandler,
+                dict(
+                    persistentFieldDaySurveyListObj=PersistentFieldDaySurveyList
+                )
+            ),
             (r"/field_days/({id})".format(id=mongoIdRegex), FieldDayHandler, dict(persistentEntityObj=PersistentFieldDayEntity)),
-            (r"/surveys", SurveyListHandler, dict(persistentSurveyListObj=PersistentSurveyList())),
+            (r"/surveys", SurveyTypeListHandler, dict(persistentSurveyListObj=PersistentSurveyTypeList())),
             (r"/locations/({guid})/sites".format(guid=guidRegex), SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
             (r"/locations", LocationListHandler, dict(persistentLocationListObj=PersistentLocationList())),
             (r"/auth/success", BaseAuthenticatedHandler),
