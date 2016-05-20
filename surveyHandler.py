@@ -43,7 +43,7 @@ class FieldDaySurveyListHandler(BaseEntityListHandler):
         self.finish()
 
     @coroutine
-    def get(self, fieldDayId):
+    def get(self, fieldDayId, siteId=None):
         try:
             pageSize, pageNum = self.getPageSizeAndNum()
         except ValueError as exPage:
@@ -55,16 +55,38 @@ class FieldDaySurveyListHandler(BaseEntityListHandler):
         offset = (pageNum-1)*pageSize
         limit = pageSize
         entityListGetter = self.__persistentFieldDaySurveyListObj__
-        fieldDaySurveyList, totalRecordCount = yield entityListGetter.get(
-            fieldDayId=fieldDayId,
-            limit=limit,
-            offset=offset
+        try:
+            fieldDaySurveyList, totalRecordCount = yield entityListGetter.get(
+                fieldDayId=fieldDayId,
+                limit=limit,
+                offset=offset
             )
+            if fieldDaySurveyList is None:
+                raise KeyError("Surveys have not been recorded for this Site")
+        except KeyError as exNotFound:
+            errorMessage = exNotFound
+            self.set_status(404)
+            self.add_header("error", "{0}".format(errorMessage))
+            self.finish({"message": "{0}".format(errorMessage)})
+            return
+        except Exception as ex:
+            logger.error("{0}".format(ex))
+            errorMessage = "An error occured while attempting to retireve the Surveys for a Field Day"
+            self.set_status(500)
+            self.add_header(
+                "error", "{0}".format(
+                    errorMessage
+                )
+            )
+            self.finish({"message": "{0}".format(errorMessage)})
+            return
+
         self.setResponseHeadersList(
             pageNum=pageNum,
             pageSize=pageSize,
             totalRecordCount=totalRecordCount
         )
+
         self.finish({"data": fieldDaySurveyList})
 
 
