@@ -1,6 +1,8 @@
+from bson import objectid
+
 fieldDayList = [
     {
-        "id": "1000",
+        "_id": objectid.ObjectId("573e765fc1ed602daf609007"),
         "date": "2015-03-05",
         "description": "Aldinga North - March 2015",
         "location_id": "1000",
@@ -63,7 +65,7 @@ fieldDayList = [
         "volunteers": [] # calculated from child-surveys
     },
     {
-        "id": "1100",
+        "_id": objectid.ObjectId("573e7696c1ed602daf609008"),
         "date": "2015-03-05",
         "description": "Aldinga South - March 2015",
         "location_id": "2000",
@@ -71,15 +73,14 @@ fieldDayList = [
         "sites": []
     },
     {
-        "id": "1200",
+        "_id": objectid.ObjectId("573e76b2c1ed602daf609009"),
         "date": "2015-10-12",
         "description": "Lady Bay North - October 2015",
         "location_id": "3000",
-        "leader_id": "1000",
-        "sites": []
+        "leader_id": "1000"
     },
     {
-        "id": "1300",
+        "_id": objectid.ObjectId("573e76c0c1ed602daf60900a"),
         "date": "2015-12-03",
         "description": "Lady Bay South - December 2015",
         "location_id": "4000",
