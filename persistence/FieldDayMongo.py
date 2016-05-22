@@ -6,6 +6,7 @@ import tornado.concurrent
 from FieldDayPersistenceBase import PersistentFieldDayBase
 
 from bson.objectid import ObjectId
+import bson.errors
 import logging
 logger = logging.getLogger(__name__)
 
@@ -52,8 +53,11 @@ class PersistentFieldDayTides(PersistentFieldDayBase):
 
     @tornado.concurrent.return_future
     def get(self, fieldDayId, callback, **kwargs):
-        if type(fieldDayId) == str:
-            fieldDayId = ObjectId(fieldDayId)
+        if type(fieldDayId) in [str, unicode]:
+            try:
+                fieldDayId = ObjectId(fieldDayId)
+            except bson.errors.InvalidId as exId:
+                pass
 
         mongoQuery = {"_id": fieldDayId}
         result = self.__mongoDbCollection__.find_one(mongoQuery, {"tides": 1})
