@@ -51,6 +51,8 @@ class PersistentFieldDayList(PersistentFieldDayListBase):
             fieldDay = result
             # Replace ObjectId with string its representation
             fieldDay["id"] = str(fieldDay.pop("_id"))
+            if "location_id" in fieldDay and fieldDay["location_id"]:
+                fieldDay["location_id"] = str(fieldDay["location_id"])
             # do transformations on fieldDay
             resultList.append(fieldDay)
 

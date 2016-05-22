@@ -76,7 +76,9 @@ class FieldDayListHandler(BaseEntityListHandler):
 
             """ Check that location exists """
             locationGetter = self.__persistentLocationEntityObj__
+            print "Preparing to verify location"
             verifiedLocation = yield locationGetter.get(locationId=fieldDayLocation)
+            print "Verified Location: {}".format("verifiedLocation")
             if verifiedLocation:
                 locationDescription = verifiedLocation["description"]
             else:
