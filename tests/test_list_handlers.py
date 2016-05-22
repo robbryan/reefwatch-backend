@@ -7,14 +7,21 @@ import logging
 
 import mongomock
 
+import fieldDayTestData
+
 """ Surveys """
 from persistence.SurveyListPersistenceBase import PersistentSurveyTypeListDummy as PersistentSurveyList
 from surveyHandler import SurveyTypeListHandler
 
 """ Locations """
-from persistence.LocationListPersistenceBase import PersistentLocationListDummy as PersistentLocationList
-from persistence.LocationPersistenceDummy import PersistentLocationDummy as PersistentLocationEntity
+from persistence.LocationMongo import PersistentLocation as LocationEntityMongo
+from persistence.LocationListMongo import PersistentLocationList as LocationListMongo
 from locationHandler import LocationListHandler
+mongoCollectionLocation = mongomock.MongoClient().db.collection
+for obj in fieldDayTestData.locationList:
+    mongoCollectionLocation.insert(obj)
+LocationListMongo = LocationListMongo(mongoCollectionLocation)
+LocationEntityMongo = LocationEntityMongo(mongoCollectionLocation)
 
 """ Sites """
 from persistence.SiteListPersistenceBase import PersistentSiteListDummy as PersistentSiteList
@@ -24,7 +31,6 @@ from siteHandler import SiteListHandler
 from persistence.FieldDayPersistenceDummy import PersistentFieldDayListDummy as PersistentFieldDayList
 from fieldDayHandler import FieldDayListHandler
 from persistence.FieldDayListMongo import PersistentFieldDayList as FieldDayListMongo
-import fieldDayTestData
 mongoCollectionFieldDay = mongomock.MongoClient().db.collection
 for obj in fieldDayTestData.fieldDayList:
     mongoCollectionFieldDay.insert(obj)
@@ -43,7 +49,7 @@ class TestListHandlers(tornado.testing.AsyncHTTPTestCase):
                     FieldDayListHandler,
                     dict(
                         persistentEntityListObj=PersistentFieldDayList(),
-                        persistentLocationEntityObj=PersistentLocationEntity()
+                        persistentLocationEntityObj=LocationListMongo
                     )
                 ),
                 (
@@ -51,10 +57,10 @@ class TestListHandlers(tornado.testing.AsyncHTTPTestCase):
                     FieldDayListHandler,
                     dict(
                         persistentEntityListObj=FieldDayListMongo,
-                        persistentLocationEntityObj=PersistentLocationEntity()
+                        persistentLocationEntityObj=LocationEntityMongo
                     )
                 ),
-                (r'/dummy/locations', LocationListHandler, dict(persistentLocationListObj=PersistentLocationList())),
+                (r'/dummy/locations', LocationListHandler, dict(persistentLocationListObj=LocationListMongo)),
                 (r'/dummy/locations/([0-9]+)/sites', SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
                 ]
             )
