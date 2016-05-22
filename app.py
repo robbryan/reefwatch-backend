@@ -32,9 +32,7 @@ from persistence.SurveyListPersistenceBase import PersistentSurveyTypeListDummy 
 from surveyHandler import SurveyTypeListHandler, FieldDaySurveyListHandler
 
 """ Locations """
-from persistence.LocationListPersistenceBase import PersistentLocationListDummy as PersistentLocationList
-from persistence.LocationPersistenceDummy import PersistentLocationDummy as PersistentLocationEntity
-from locationHandler import LocationListHandler
+from locationHandler import LocationListHandler, LocationHandler
 
 """ Sites """
 from persistence.SiteListPersistenceBase import PersistentSiteListDummy as PersistentSiteList
@@ -78,6 +76,13 @@ else:
             for fieldDay in demo.fieldDayDemoData.fieldDayList:
                 fieldDayCollection.insert(fieldDay)
 
+            if hasattr(options, "location_collection"):
+                locationCollection = mongoDb[options.location_collection]
+            else:
+                locationCollection = mongoDb["reefwatch_location"]
+            for reefwatchLocation in demo.fieldDayDemoData.locationList:
+                locationCollection.insert(reefwatchLocation)
+
         except ImportError:
             print "Unable to locate fieldDayDemoData in demo. No Demo data available" 
         except Exception as ex:
@@ -116,6 +121,23 @@ else:
         mongoDb[fieldDayOptions["field_day_collection"]]
     )
 
+    try:
+        reefwatchLocationOptions = options.group_dict("location")
+    except KeyError as exNoMongoOptions:
+        reefwatchLocationOptions = {}
+
+    if "location_collection" not in fieldDayOptions:
+        reefwatchLocationOptions["location_collection"] = "reefwatch_location"
+
+    PersistentLocationListModule = importlib.import_module("persistence.LocationListMongo")
+    PersistentLocationList = PersistentLocationListModule.PersistentLocationList(
+        mongoDb[reefwatchLocationOptions["location_collection"]]
+    )
+
+    PersistentLocationEntityModule = importlib.import_module("persistence.LocationMongo")
+    PersistentLocationEntity = PersistentLocationEntityModule.PersistentLocation(
+        mongoDb[reefwatchLocationOptions["location_collection"]]
+    )
 
 from authHandler import LogoutHandler
 
@@ -161,7 +183,7 @@ class Application(tornado.web.Application):
                 FieldDayListHandler,
                 dict(
                     persistentEntityListObj=PersistentFieldDayList,
-                    persistentLocationEntityObj=PersistentLocationEntity()
+                    persistentLocationEntityObj=PersistentLocationEntity
                 )
             ),
             (r"/field_days/({id})/tides".format(id=mongoIdRegex), FieldDayTidesHandler, dict(persistentEntityObj=PersistentFieldDayTidesEntity)),
@@ -180,9 +202,10 @@ class Application(tornado.web.Application):
                 )
             ),
             (r"/field_days/({id})".format(id=mongoIdRegex), FieldDayHandler, dict(persistentEntityObj=PersistentFieldDayEntity)),
+            (r"/locations/({id})/sites".format(id=mongoIdRegex), SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
+            (r"/locations/({id})".format(id=mongoIdRegex), LocationHandler, dict(persistentLocationEntityObj=PersistentLocationEntity)),
+            (r"/locations", LocationListHandler, dict(persistentLocationListObj=PersistentLocationList)),
             (r"/surveys", SurveyTypeListHandler, dict(persistentSurveyListObj=PersistentSurveyTypeList())),
-            (r"/locations/({guid})/sites".format(guid=guidRegex), SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
-            (r"/locations", LocationListHandler, dict(persistentLocationListObj=PersistentLocationList())),
             (r"/auth/success", BaseAuthenticatedHandler),
             (r"/auth/logout", LogoutHandler)
         ]
