@@ -85,7 +85,7 @@ fieldDayList = [
         "description": "Lady Bay South - December 2015",
         "location_id": objectid.ObjectId('57419a3764cc93726de9e047'),
         "leader_id": "1000",
-        "sites": []
+        "tides": {}
     }
 ]
 
