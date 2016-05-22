@@ -77,7 +77,8 @@ fieldDayList = [
         "date": "2015-10-12",
         "description": "Lady Bay North - October 2015",
         "location_id": "3000",
-        "leader_id": "1000"
+        "leader_id": "1000",
+        "tides": {}
     },
     {
         "_id": objectid.ObjectId("573e76c0c1ed602daf60900a"),
