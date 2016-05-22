@@ -186,7 +186,11 @@ class Application(tornado.web.Application):
                     persistentLocationEntityObj=PersistentLocationEntity
                 )
             ),
-            (r"/field_days/({id})/tides".format(id=mongoIdRegex), FieldDayTidesHandler, dict(persistentEntityObj=PersistentFieldDayTidesEntity)),
+            (
+                r"/field_days/({id})/tides".format(id=mongoIdRegex),
+                FieldDayTidesHandler,
+                dict(persistentEntityObj=PersistentFieldDayTidesEntity)
+            ),
             (
                 r"/field_days/({id})/surveys".format(id=mongoIdRegex),
                 FieldDaySurveyListHandler,
