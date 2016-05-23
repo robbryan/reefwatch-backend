@@ -91,7 +91,7 @@ class FieldDaySiteListHandler(BaseEntityListHandler):
             pageSize=pageSize,
             totalRecordCount=totalRecordCount
         )
-        self.write({"data": fieldDaySiteList})
+        self.finish({"data": fieldDaySiteList})
 
 
 if __name__ == "__main__":
