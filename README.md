@@ -13,6 +13,12 @@ For Mongo DB support, you will need pymongo as well as mongomock for unit testin
 sudo easy_install pymongo mongomock
 ```
 
+## Configuration
+Some reasonable defaults are defined in localSettings.py.sample for you to use. You might like to copy that file to localSettings.py and edit it to your liking.
+
+At the very least, you must specify a 'cookie_secret' for encrypting secure cookies.
+Look for the line "define("cookie_secret", default=None, help="Encryption key used for ecrypting secure cookies")" and replace the default with your own value.
+
 If you wish to use **MongoDB**, you must define the relevant options in localSettings.py.
 There are some sane defaults in the localSettings.py.sample provided. Start with those
 ```
