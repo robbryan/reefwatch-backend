@@ -49,3 +49,39 @@ There is also a multitude of command-line options you can pass too - Check docum
 ```
 python app.py --port=8888 --logging=debug --debug=1 &
 ```
+## Calling the API
+The purpose of the API is to facilitate the collection and management of observations undertaken as part of Conservation SA's Reefwatch program.
+
+The structure of of the API creates a hierarchy of location-and-date -> site -> survey -> discrete observations
+```
+- Location & Date
+| - Tides
+| - Sites
+| | - Site 1
+| | | - Survey 1
+| | | | - Survey Type
+| | | | - Weather
+| | | | - Observations
+| | | | | - discrete observation
+| | - Site 2
+```
+The API is RESTful and so most branches in the hierarchy can be used to retrieve a collection/list or an individual item using its ID
+
+For example, you can get a list of field days like this
+```
+http://localhost:9881/field_days
+```
+and get an individual field day using its ID
+```
+http://localhost:9881/field_days/573e765fc1ed602daf609007
+```
+
+List of routes
+```
+/field_days
+/field_days/{id}
+/field_days/{id}/tides
+/field_days/{id}/sites
+/locations
+/locations/{id}
+```
