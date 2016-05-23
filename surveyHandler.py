@@ -17,12 +17,44 @@ logger.setLevel(logger.getEffectiveLevel())
 class SurveyTypeListHandler(BaseEntityListHandler):
 
     def initialize(self, persistentSurveyListObj):
-        self.__persistentSurveyListObj__ = persistentSurveyListObj
+        self.__persistentEntityListObj__ = persistentSurveyListObj
 
+    @coroutine
     def get(self):
-        surveyListGetter = self.__persistentSurveyListObj__
-        surveyList = surveyListGetter.get()
-        self.write({"data": surveyList})
+        try:
+            pageSize, pageNum = self.getPageSizeAndNum()
+        except ValueError as exPage:
+            self.set_status(400)
+            self.add_header("error", "{0}".format(exPage))
+            self.finish({"message": "{0}".format(exPage)})
+            return
+
+        offset = (pageNum-1)*pageSize
+        limit = pageSize
+        entityListGetter = self.__persistentEntityListObj__
+        try:
+            surveyTypeList, totalRecordCount = yield entityListGetter.get(
+                limit=limit,
+                offset=offset
+            )
+        except Exception as ex:
+            logger.error("{0}".format(ex))
+            errorMessage = "An error occured while attempting to retireve the lsit of Survey Types"
+            self.set_status(500)
+            self.add_header(
+                "error", "{0}".format(
+                    errorMessage
+                )
+            )
+            self.finish({"message": "{0}".format(errorMessage)})
+            return
+
+        self.setResponseHeadersList(
+            pageNum=pageNum,
+            pageSize=pageSize,
+            totalRecordCount=totalRecordCount
+        )
+        self.finish({"data": surveyTypeList})
 
 
 class FieldDaySurveyListHandler(BaseEntityListHandler):

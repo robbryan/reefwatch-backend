@@ -28,7 +28,6 @@ logging.basicConfig(filename=options.log_file, format='%(asctime)-6s: %(name)s -
 from fieldDayHandler import FieldDayListHandler, FieldDayHandler, FieldDayTidesHandler
 
 """ Surveys """
-from persistence.SurveyListPersistenceBase import PersistentSurveyTypeListDummy as PersistentSurveyTypeList
 from surveyHandler import SurveyTypeListHandler, FieldDaySurveyListHandler
 
 """ Locations """
@@ -82,6 +81,13 @@ else:
                 locationCollection = mongoDb["reefwatch_location"]
             for reefwatchLocation in demo.fieldDayDemoData.locationList:
                 locationCollection.insert(reefwatchLocation)
+    
+            if hasattr(options, "survey_type_collection"):
+                surveyTypeCollection = mongoDb[options.survey_type_collection]
+            else:
+                surveyTypeCollection = mongoDb["survey_type"]
+            for surveyType in demo.fieldDayDemoData.surveyTypeList:
+                surveyTypeCollection.insert(surveyType)
 
         except ImportError:
             print "Unable to locate fieldDayDemoData in demo. No Demo data available" 
@@ -137,6 +143,19 @@ else:
     PersistentLocationEntityModule = importlib.import_module("persistence.LocationMongo")
     PersistentLocationEntity = PersistentLocationEntityModule.PersistentLocation(
         mongoDb[reefwatchLocationOptions["location_collection"]]
+    )
+
+    try:
+        surveyTypeOptions = options.group_dict("survey_type")
+    except KeyError as exNoMongoOptions:
+        surveyTypeOptions = {}
+
+    if "survey_type_collection" not in fieldDayOptions:
+        reefwatchLocationOptions["survey_type_collection"] = "survey_type"
+
+    PersistentLocationListModule = importlib.import_module("persistence.SurveyTypeListMongo")
+    PersistentSurveyTypeList = PersistentLocationListModule.PersistentSurveyTypeList(
+        mongoDb[reefwatchLocationOptions["survey_type_collection"]]
     )
 
 from authHandler import LogoutHandler
@@ -209,7 +228,7 @@ class Application(tornado.web.Application):
             (r"/locations/({id})/sites".format(id=mongoIdRegex), SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
             (r"/locations/({id})".format(id=mongoIdRegex), LocationHandler, dict(persistentLocationEntityObj=PersistentLocationEntity)),
             (r"/locations", LocationListHandler, dict(persistentLocationListObj=PersistentLocationList)),
-            (r"/surveys", SurveyTypeListHandler, dict(persistentSurveyListObj=PersistentSurveyTypeList())),
+            (r"/surveys", SurveyTypeListHandler, dict(persistentSurveyListObj=PersistentSurveyTypeList)),
             (r"/auth/success", BaseAuthenticatedHandler),
             (r"/auth/logout", LogoutHandler)
         ]

@@ -266,21 +266,21 @@ locationList = [
 surveyTypeList = [
     {
         "_id": objectid.ObjectId('57429708c1ed60103845f42a'),
-        "code": "ITS",
+        "survey_code": "ITS",
         "name": "Intertidal Timed Search",
         "question": "How many different marine invertabrate species are found at this site?",
         "method": """Count intertidal species during a random search over a 10 minute period (per person). Volunteers should cover the area approximately 5-10 metres of each side of the transect to stay within the relevant intertidal zone."""
     },
     {
         "_id": objectid.ObjectId('574299bcc1ed60103845f42b'),
-        "code": "PIT",
+        "survey_code": "PIT",
         "name": "Intertidal Point Intercept Transect",
         "question": "How do cover and sediment depth vary over space and time?",
         "method": """Set up the 20 m transect at one of the permanent transect sites, parallel to the shoreline. Record the substrate cover (tick) and sedament depth (mm) every 20 cm."""
     },
     {
         "_id": objectid.ObjectId('57429ac9c1ed60103845f42c'),
-        "code": "SQS",
+        "survey_code": "SQS",
         "name": "Intertidal Mobile Species Quadrat Survey",
         "question": "How does the abundance of mobile reef animals change in the area over time?",
         "method": """2 x 20m transects, 50 cm apart, parallel to the shoreline. Equipment: two tape measures, or 20 m lengths of rope and 10 stakes (about 50 cm long).Sections are marked at 2 m intervals to make 10 rectangles of 2 m long x 50 cm wide. Individuals are counted on in five rectangles at 0-2, 4-6, 8-10, 12-14 and 16-18 m. Individuals are only counted if they are bigger than 5 mm in length."""
