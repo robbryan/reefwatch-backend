@@ -10,8 +10,12 @@ import mongomock
 import fieldDayTestData
 
 """ Surveys """
-from persistence.SurveyListPersistenceBase import PersistentSurveyTypeListDummy as PersistentSurveyList
+from persistence.SurveyTypeListMongo import PersistentSurveyTypeList as SurveyTypeList
 from surveyHandler import SurveyTypeListHandler
+mongoCollectionSurveyType = mongomock.MongoClient().db.collection
+for obj in fieldDayTestData.surveyTypeList:
+    mongoCollectionSurveyType.insert(obj)
+
 
 """ Locations """
 from persistence.LocationMongo import PersistentLocation as LocationEntityMongo
