@@ -32,7 +32,6 @@ from persistence.SiteListPersistenceBase import PersistentSiteListDummy as Persi
 from siteHandler import SiteListHandler
 
 """ Field Days """
-from persistence.FieldDayPersistenceDummy import PersistentFieldDayListDummy as PersistentFieldDayList
 from fieldDayHandler import FieldDayListHandler
 from persistence.FieldDayListMongo import PersistentFieldDayList as FieldDayListMongo
 mongoCollectionFieldDay = mongomock.MongoClient().db.collection
@@ -49,10 +48,10 @@ class TestListHandlers(tornado.testing.AsyncHTTPTestCase):
     def get_app(self):
         application = tornado.web.Application([
                 (
-                    r"/dummy/field_days",
+                    r"/mongo/field_days",
                     FieldDayListHandler,
                     dict(
-                        persistentEntityListObj=PersistentFieldDayList(),
+                        persistentEntityListObj=FieldDayListMongo,
                         persistentLocationEntityObj=LocationListMongo
                     )
                 ),
@@ -64,8 +63,8 @@ class TestListHandlers(tornado.testing.AsyncHTTPTestCase):
                         persistentLocationEntityObj=LocationEntityMongo
                     )
                 ),
-                (r'/dummy/locations', LocationListHandler, dict(persistentLocationListObj=LocationListMongo)),
-                (r'/dummy/locations/([0-9]+)/sites', SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
+                (r'/mongo/locations', LocationListHandler, dict(persistentLocationListObj=LocationListMongo)),
+                (r'/mongo/locations/([0-9]+)/sites', SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
                 ]
             )
         application.settings = dict(
@@ -76,7 +75,12 @@ class TestListHandlers(tornado.testing.AsyncHTTPTestCase):
     def test_allListGets(self):
         """ Test getting list of Locations, Sites and Field Days """
 
-        for resourcePath in ["/dummy/locations", "/dummy/locations/123/sites", "/dummy/field_days", "/mongo/field_days"]:
+        for resourcePath in [
+            "/mongo/locations",
+            "/mongo/locations/123/sites",
+            "/mongo/field_days",
+            "/mongo/field_days"
+            ]:
 
             """ Test with no params """
             response = self.fetch(resourcePath)
