@@ -19,6 +19,11 @@ class SurveyTypeListHandler(BaseEntityListHandler):
     def initialize(self, persistentSurveyListObj):
         self.__persistentEntityListObj__ = persistentSurveyListObj
 
+    def options(self, *args):
+        allowedMethods = list(["OPTIONS", "GET"])
+        self.set_header("Access-Control-Allow-Methods", ",".join(allowedMethods))
+        self.finish()
+
     @coroutine
     def get(self):
         try:
