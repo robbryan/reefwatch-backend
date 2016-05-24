@@ -2,6 +2,7 @@ from bson.objectid import ObjectId
 import tornado.testing
 
 from persistence.FieldDaySiteListMongo import PersistentFieldDaySiteList as FieldDaySiteList
+from persistence.FieldDaySiteMongo import PersistentFieldDaySite as FieldDaySite
 
 import mongomock
 import fieldDayTestData
@@ -40,6 +41,11 @@ class TestReefwatchFieldDay(tornado.testing.AsyncTestCase):
             totalRecordCount if totalRecordCount <= recordLimit else recordLimit
         )
 
+        entityGetter = FieldDaySite(mongoCollectionFieldDay)
+        for fieldDaySite in fieldDaySiteList:
+            fieldDaySiteEntity = yield entityGetter.get(fieldDayId, fieldDaySite["site_code"])
+            self.assertEqual(fieldDaySite["site_code"], fieldDaySiteEntity["site_code"])
+
     @tornado.testing.gen_test
     def test_empty_list_get(self):
         """ Get an empty list of Sites for a given Field Day """
@@ -75,4 +81,3 @@ class TestReefwatchFieldDay(tornado.testing.AsyncTestCase):
             offset=0
         )
         self.assertIsNone(fieldDaySiteList)
-

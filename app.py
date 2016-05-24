@@ -35,7 +35,7 @@ from locationHandler import LocationListHandler, LocationHandler
 
 """ Sites """
 from persistence.SiteListPersistenceBase import PersistentSiteListDummy as PersistentSiteList
-from siteHandler import SiteListHandler, FieldDaySiteListHandler
+from siteHandler import SiteListHandler, FieldDaySiteListHandler, FieldDaySiteHandler
 
 from baseHandler import BaseAuthenticatedHandler
 
@@ -81,7 +81,7 @@ else:
                 locationCollection = mongoDb["reefwatch_location"]
             for reefwatchLocation in demo.fieldDayDemoData.locationList:
                 locationCollection.insert(reefwatchLocation)
-    
+
             if hasattr(options, "survey_type_collection"):
                 surveyTypeCollection = mongoDb[options.survey_type_collection]
             else:
@@ -124,6 +124,11 @@ else:
 
     PersistentFieldDaySiteListModule = importlib.import_module("persistence.FieldDaySiteListMongo")
     PersistentFieldDaySiteList = PersistentFieldDaySiteListModule.PersistentFieldDaySiteList(
+        mongoDb[fieldDayOptions["field_day_collection"]]
+    )
+
+    PersistentFieldDaySiteModule = importlib.import_module("persistence.FieldDaySiteMongo")
+    PersistentFieldDaySite = PersistentFieldDaySiteModule.PersistentFieldDaySite(
         mongoDb[fieldDayOptions["field_day_collection"]]
     )
 
@@ -215,6 +220,13 @@ class Application(tornado.web.Application):
                 FieldDaySurveyListHandler,
                 dict(
                     persistentFieldDaySurveyListObj=PersistentFieldDaySurveyList
+                )
+            ),
+            (
+                r"/field_days/({field_day_id})/sites/({site_code})".format(field_day_id=mongoIdRegex, site_code=r"[a-zA-Z]{2,}"),
+                FieldDaySiteHandler,
+                dict(
+                    persistentFieldDaySiteEntityObj=PersistentFieldDaySite
                 )
             ),
             (

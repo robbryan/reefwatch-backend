@@ -33,7 +33,7 @@ class PersistentFieldDaySiteList(PersistentFieldDaySiteListBase):
         """
         mongoQuery = {"_id": fieldDayId}
         result = self.__mongoDbCollection__.find_one(
-            mongoQuery, {"sites": 1}
+            mongoQuery
         )
 
         if result and "sites" in result and type(result["sites"]) == list:
