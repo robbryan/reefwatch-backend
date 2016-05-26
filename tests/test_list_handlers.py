@@ -11,7 +11,7 @@ import fieldDayTestData
 
 """ Surveys """
 from persistence.SurveyTypeListMongo import PersistentSurveyTypeList as SurveyTypeList
-from surveyHandler import SurveyTypeListHandler
+from surveyHandler import SurveyTypeListHandler, FieldDaySurveyListHandler
 mongoCollectionSurveyType = mongomock.MongoClient().db.collection
 for obj in fieldDayTestData.surveyTypeList:
     mongoCollectionSurveyType.insert(obj)
@@ -28,8 +28,8 @@ LocationListMongo = LocationListMongo(mongoCollectionLocation)
 LocationEntityMongo = LocationEntityMongo(mongoCollectionLocation)
 
 """ Sites """
-from persistence.SiteListPersistenceBase import PersistentSiteListDummy as PersistentSiteList
-from siteHandler import SiteListHandler
+from persistence.FieldDaySiteListMongo import PersistentFieldDaySiteList
+from siteHandler import SiteListHandler, FieldDaySiteListHandler
 
 """ Field Days """
 from fieldDayHandler import FieldDayListHandler
@@ -56,15 +56,14 @@ class TestListHandlers(tornado.testing.AsyncHTTPTestCase):
                     )
                 ),
                 (
-                    r"/mongo/field_days",
-                    FieldDayListHandler,
+                    r"/mongo/field_days/([A-Za-z0-9]+)/sites",
+                    FieldDaySiteListHandler,
                     dict(
-                        persistentEntityListObj=FieldDayListMongo,
-                        persistentLocationEntityObj=LocationEntityMongo
+                        persistentFieldDaySiteListObj=PersistentFieldDaySiteList(mongoCollectionFieldDay)
                     )
                 ),
                 (r'/mongo/locations', LocationListHandler, dict(persistentLocationListObj=LocationListMongo)),
-                (r'/mongo/locations/([0-9]+)/sites', SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
+#                (r'/mongo/locations/([A-Za-z0-9]+)/sites', SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
                 ]
             )
         application.settings = dict(
@@ -77,9 +76,8 @@ class TestListHandlers(tornado.testing.AsyncHTTPTestCase):
 
         for resourcePath in [
             "/mongo/locations",
-            "/mongo/locations/123/sites",
             "/mongo/field_days",
-            "/mongo/field_days"
+            "/mongo/field_days/573e765fc1ed602daf609007/sites"
             ]:
 
             """ Test with no params """
