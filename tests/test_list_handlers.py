@@ -71,6 +71,7 @@ class TestListHandlers(tornado.testing.AsyncHTTPTestCase):
                     )
                 ),
                 (r'/mongo/locations', LocationListHandler, dict(persistentLocationListObj=LocationListMongo)),
+                (r'/mongo/surveys', SurveyTypeListHandler, dict(persistentSurveyListObj=SurveyTypeList(mongoCollectionSurveyType))),
 #                (r'/mongo/locations/([A-Za-z0-9]+)/sites', SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
                 ]
             )
@@ -84,6 +85,7 @@ class TestListHandlers(tornado.testing.AsyncHTTPTestCase):
 
         for resourcePath in [
             "/mongo/locations",
+            "/mongo/surveys",
             "/mongo/field_days",
             "/mongo/field_days/573e765fc1ed602daf609007/sites",
             "/mongo/field_days/573e765fc1ed602daf609007/sites/ANU/surveys"
@@ -109,6 +111,13 @@ class TestListHandlers(tornado.testing.AsyncHTTPTestCase):
                 )
             response = self.fetch(resourcePath + "?" + queryString, method='GET')
             self.assertEqual(response.code, 200)
+
+            """ Test with invalid params """
+            queryString = "per_page={0}".format(
+                tornado.escape.url_escape("abc")
+                )
+            response = self.fetch(resourcePath + "?" + queryString, method='GET')
+            self.assertEqual(response.code, 400)
 
 
 if __name__=="__main__":
