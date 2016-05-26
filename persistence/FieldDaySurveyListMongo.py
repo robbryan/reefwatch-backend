@@ -17,33 +17,26 @@ class PersistentFieldDaySurveyList(PersistentFieldDaySurveyListBase):
         self.__mongoDbCollection__ = mongoDbCollection
 
     @tornado.concurrent.return_future
-    def get(self, fieldDayId, callback, limit=100, offset=0, **kwargs):
+    def get(self, fieldDayId, siteCode, callback, limit=100, offset=0, **kwargs):
         assert(type(limit) == int)
         assert(limit > 0)
         assert(type(offset) == int)
 
-        if type(fieldDayId) == str:
+        if type(fieldDayId) in [str, unicode]:
             fieldDayId = ObjectId(fieldDayId)
 
-        """
-            It would be possible to use aggregates, count and slice to do this
-            but given the likely small number (upto 9) of elements expected,
-            the most pragmatic way to code/debug/maintain this is with
-            python array slicing
-        """
-        mongoQuery = {"_id": fieldDayId}
+        mongoQuery = {"_id": fieldDayId, "sites.site_code": siteCode}
         result = self.__mongoDbCollection__.find_one(
-            mongoQuery, {"surveys": 1}
+            mongoQuery, {"sites": 1}
         )
 
-        if result and "surveys" in result and result["surveys"]:
-            surveyList = result["surveys"]
-            resultCount = len(surveyList)
-            if resultCount > limit:
-                surveyList = surveyList[offset:(limit+offset)]
-        else:
-            surveyList = None
-            resultCount = 0
+        surveyList = None
+        resultCount = 0
+        if result and "sites" in result and type(result["sites"]) == list:
+            site = filter(lambda x: x["site_code"] == siteCode, result["sites"])[0]
+            if "surveys" in site and type(site["surveys"]) == list:
+                surveyList = site["surveys"][offset:(limit+offset)]
+                resultCount = len(site["surveys"])
 
         callback((surveyList, resultCount))
 

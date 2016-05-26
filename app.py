@@ -132,6 +132,11 @@ else:
         mongoDb[fieldDayOptions["field_day_collection"]]
     )
 
+    PersistentFieldDaySurveyListModule = importlib.import_module("persistence.FieldDaySurveyListMongo")
+    PersistentFieldDaySurveyList = PersistentFieldDaySurveyListModule.PersistentFieldDaySurveyList(
+        mongoDb[fieldDayOptions["field_day_collection"]]
+    )
+    
     try:
         reefwatchLocationOptions = options.group_dict("location")
     except KeyError as exNoMongoOptions:
@@ -216,7 +221,10 @@ class Application(tornado.web.Application):
                 dict(persistentEntityObj=PersistentFieldDayTidesEntity)
             ),
             (
-                r"/field_days/({id})/surveys".format(id=mongoIdRegex),
+                r"/field_days/({field_day_id})/sites/({site_code})/surveys".format(
+                    field_day_id=mongoIdRegex,
+                    site_code=r"[a-zA-Z]{2,}"
+                ),
                 FieldDaySurveyListHandler,
                 dict(
                     persistentFieldDaySurveyListObj=PersistentFieldDaySurveyList

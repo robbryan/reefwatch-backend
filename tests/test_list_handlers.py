@@ -11,6 +11,7 @@ import fieldDayTestData
 
 """ Surveys """
 from persistence.SurveyTypeListMongo import PersistentSurveyTypeList as SurveyTypeList
+from persistence.FieldDaySurveyListMongo import PersistentFieldDaySurveyList
 from surveyHandler import SurveyTypeListHandler, FieldDaySurveyListHandler
 mongoCollectionSurveyType = mongomock.MongoClient().db.collection
 for obj in fieldDayTestData.surveyTypeList:
@@ -56,6 +57,13 @@ class TestListHandlers(tornado.testing.AsyncHTTPTestCase):
                     )
                 ),
                 (
+                    r"/mongo/field_days/([A-Za-z0-9]+)/sites/(ANU)/surveys",
+                    FieldDaySurveyListHandler,
+                    dict(
+                        persistentFieldDaySurveyListObj=PersistentFieldDaySurveyList(mongoCollectionFieldDay)
+                    )
+                ),
+                (
                     r"/mongo/field_days/([A-Za-z0-9]+)/sites",
                     FieldDaySiteListHandler,
                     dict(
@@ -77,7 +85,8 @@ class TestListHandlers(tornado.testing.AsyncHTTPTestCase):
         for resourcePath in [
             "/mongo/locations",
             "/mongo/field_days",
-            "/mongo/field_days/573e765fc1ed602daf609007/sites"
+            "/mongo/field_days/573e765fc1ed602daf609007/sites",
+            "/mongo/field_days/573e765fc1ed602daf609007/sites/ANU/surveys"
             ]:
 
             """ Test with no params """

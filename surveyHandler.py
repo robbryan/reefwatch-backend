@@ -7,7 +7,7 @@ __copyright__ = "Copyright 2016"
 
 from tornado.gen import coroutine
 
-from baseHandler import BaseEntityListHandler
+from baseHandler import BaseEntityListHandler, BaseHandler
 
 import logging
 logger = logging.getLogger(__name__)
@@ -80,7 +80,7 @@ class FieldDaySurveyListHandler(BaseEntityListHandler):
         self.finish()
 
     @coroutine
-    def get(self, fieldDayId, siteId=None):
+    def get(self, fieldDayId, siteCode=None):
         try:
             pageSize, pageNum = self.getPageSizeAndNum()
         except ValueError as exPage:
@@ -95,6 +95,7 @@ class FieldDaySurveyListHandler(BaseEntityListHandler):
         try:
             fieldDaySurveyList, totalRecordCount = yield entityListGetter.get(
                 fieldDayId=fieldDayId,
+                siteCode=siteCode,
                 limit=limit,
                 offset=offset
             )
@@ -126,6 +127,43 @@ class FieldDaySurveyListHandler(BaseEntityListHandler):
 
         self.finish({"data": fieldDaySurveyList})
 
+
+class FieldDaySurveyHandler(BaseHandler):
+
+    def initialize(self, persistentFieldDaySurveyEntityObj):
+        self.__persistentEntityObj__ = persistentFieldDaySurveyEntityObj
+
+    def options(self, *args):
+        allowedMethods = list(["OPTIONS", "GET"])
+        self.set_header("Access-Control-Allow-Methods", ",".join(allowedMethods))
+        self.finish()
+
+    @coroutine
+    def get(self, fieldDayId, siteCode):
+        entityGetter = self.__persistentEntityObj__
+        try:
+            fieldDaySurveyEntity = yield entityGetter.get(fieldDayId=fieldDayId, siteCode=siteCode)
+            if (not fieldDaySurveyEntity or not any(fieldDaySurveyEntity)):
+                raise KeyError("The Survey you have requested, for the Field Day and Site specified, does not exist")
+        except KeyError as exNotFound:
+            errorMessage = exNotFound
+            self.set_status(404)
+            self.add_header("error", "{0}".format(errorMessage))
+            self.finish({"message": "{0}".format(errorMessage)})
+            return
+        except Exception as ex:
+            logger.error("{0}".format(ex))
+            errorMessage = "An error occured while attempting to retireve the requested Field Day Survey"
+            self.set_status(500)
+            self.add_header(
+                "error", "{0}".format(
+                    errorMessage
+                )
+            )
+            self.finish({"message": "{0}".format(errorMessage)})
+            return
+        else:
+            self.finish(fieldDaySurveyEntity)
 
 if __name__ == "__main__":
     pass
