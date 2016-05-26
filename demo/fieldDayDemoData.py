@@ -70,7 +70,30 @@ fieldDayList = [
         "description": "Aldinga South - March 2015",
         "location_id": objectid.ObjectId('57419a1364cc93726de9e045'),
         "leader_id": "1000",
-        "sites": []
+        "sites": [
+            {
+                "site_code": "ASU",
+                "surveys": [
+                    {
+                        "survey_type": "PIT",
+                        "time": "10:20:00",
+                        "weather": {
+                            "wind_direction": "W",
+                            "wind_force": 1,
+                            "amount_of_cloud": 5,
+                            "rainfall": 0,
+                            "comments": "ASU PIT - Weather Comments"
+                        },
+                        "sea_state": 1,
+                        "comments": "ASU PIT - Survey Comments"
+                    }
+                ]
+            }
+        ],
+        "tides": {
+            "high": {"time": "02:50:00", "height": 0.80},
+            "low": {"time": "07:01:00", "height": 0.46}
+        }
     },
     {
         "_id": objectid.ObjectId("573e76b2c1ed602daf609009"),
