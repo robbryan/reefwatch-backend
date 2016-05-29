@@ -84,8 +84,8 @@ class PersistentFieldDayTides(PersistentFieldDayBase):
                 mongoQuery["$set"]["tides.low"] = kwargs["low"]
 
         if any(mongoQuery["$set"]):
-            result = self.__mongoDbCollection__.update_one({"_id": fieldDayId}, mongoQuery)
-            callback(result.modified_count)
+            result = self.__mongoDbCollection__.find_one_and_update({"_id": fieldDayId}, mongoQuery)
+            callback(1 if result else 0)
         else:
             raise ValueError("No tide information to set")
 
