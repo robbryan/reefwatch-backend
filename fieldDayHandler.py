@@ -177,7 +177,7 @@ class FieldDayTidesHandler(BaseHandler):
         try:
             user = self.get_current_user()
             if user and any(user):
-                pass # POST, PUT and DELETE to follow
+                allowedMethods.append("POST") # PUT and DELETE to follow
         except Exception as ex:
             logger.error(ex)
 
@@ -210,6 +210,106 @@ class FieldDayTidesHandler(BaseHandler):
             return
         else:
             self.finish(fieldDayTidesEntity)
+
+    def __validateTideObject__(self, tideObj):
+        isValid = True
+        message = "Valid Tide"
+        missingItems = [mandatoryItem for mandatoryItem in ['time', 'height'] if (mandatoryItem not in tideObj.iterkeys())]
+        logger.warn(missingItems)
+        if len(missingItems) > 0:
+            return (False, "\"height\" and \"time\" are required")
+
+        extraneousItems = [extraItem for extraItem in tideObj.iterkeys() if (extraItem not in ['time', 'height'])]
+        logger.warn(extraneousItems)
+        if len(extraneousItems) > 0:
+            return (False, "Only \"height\" and \"time\" may be specified")
+
+        return (isValid, message)
+
+    @tornado.web.authenticated
+    @coroutine
+    def post(self, fieldDayId):
+        fieldDayTides = {}
+        try:
+            tidesStr = self.get_body_argument("tides", None)
+            try:
+                if tidesStr:
+                    tides = tornado.escape.json_decode(tidesStr)
+                    logger.warning(tides)
+                    for tide in tides:
+                        logger.info(tide)
+                        isValid, msg = self.__validateTideObject__(tides[tide])
+                        if not isValid:
+                            raise ValueError(msg)
+
+                        fieldDayTides[tide] = tides[tide]
+
+            except Exception as exTides:
+                logger.warning("Error parsing tides ({tides}): {ex}".format(tides=tidesStr, ex=exTides))
+                raise ValueError(
+                    "The correct format for the 'tides' argument is a form-encoded object in the form {[\"high|low\"]: {\"height\": f, \"time\": \"hh:mm:ss\"}}"
+                )
+            highTideStr = self.get_body_argument("high", None)
+            if highTideStr:
+                if tidesStr:
+                    raise ValueError("If 'tides' is provided, neither 'high' nor 'low' may be individually specified")
+
+                try:
+                    highTide = tornado.escape.json_decode(highTideStr)
+                    isValid, msg = self.__validateTideObject__(highTide)
+                    if not isValid:
+                        raise ValueError
+                except Exception as exTides:
+                    logger.warning("Error parsing high ({tide}): {ex}".format(tide=highTideStr, ex=exTides))
+                    raise ValueError(
+                        "The correct format for the 'high' argument is a form-encoded object in the form {\"height\": f, \"time\": \"hh:mm:ss\"}"
+                    )
+
+            lowTideStr = self.get_body_argument("low", None)
+            if lowTideStr:
+                if tidesStr:
+                    raise ValueError("If 'tides' is provided, neither 'high' nor 'low' may be individually specified")
+
+                try:
+                    lowTide = tornado.escape.json_decode(lowTideStr)
+                    isValid, msg = self.__validateTideObject__(lowTide)
+                    if not isValid:
+                        raise ValueError
+                except Exception as exTides:
+                    logger.warning("Error parsing low ({tide}): {ex}".format(tide=lowTideStr, ex=exTides))
+                    raise ValueError(
+                        "The correct format for the 'low' argument is a form-encoded object in the form {\"height\": f, \"time\": \"hh:mm:ss\"}"
+                    )
+
+        except (ValueError, tornado.web.MissingArgumentError) as exArgument:
+            errorMessage = exArgument
+            self.set_status(400)
+            self.add_header("error", "{0}".format(errorMessage))
+            self.finish({"message": "{0}".format(errorMessage)})
+            return
+
+        entitySetter = self.__persistentEntityObj__
+        try:
+            updateCount = entitySetter.update(
+                fieldDayId=fieldDayId,
+                tides=fieldDayTides
+            )
+        except Exception as ex:
+            logger.error("{0}".format(ex))
+            errorMessage = "An error occured while attempting to retireve the requested Field Day Tides"
+            self.set_status(500)
+            self.add_header(
+                "error", "{0}".format(
+                    errorMessage
+                )
+            )
+            self.finish({"message": "{0}".format(errorMessage)})
+            return
+
+        self.finish(
+            {"message": "Tides for Field Day ({0}) successfully updated".format(fieldDayId)}
+        )
+
 
 if __name__ == "__main__":
     pass
