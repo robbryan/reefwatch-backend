@@ -66,14 +66,11 @@ class PersistentFieldDayTides(PersistentFieldDayBase):
 
     @tornado.concurrent.return_future
     def update(self, fieldDayId, callback, **kwargs):
-        if type(fieldDayId) == str:
+        if type(fieldDayId) in [str, unicode]:
             fieldDayId = ObjectId(fieldDayId)
 
         mongoQuery = {
             "$set": {
-            },
-            "$currentDate": {
-                "last_modified": True
             }
         }
 
@@ -91,6 +88,7 @@ class PersistentFieldDayTides(PersistentFieldDayBase):
             callback(result.modified_count)
         else:
             raise ValueError("No tide information to set")
+
 
 if __name__ == "__main__":
     pass

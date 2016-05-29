@@ -5,9 +5,7 @@ from persistence.FieldDayMongo import PersistentFieldDayTides as FieldDayTides
 
 import mongomock
 import fieldDayTestData
-mongoCollectionFieldDay = mongomock.MongoClient().db.collection
-for obj in fieldDayTestData.fieldDayList:
-    mongoCollectionFieldDay.insert(obj)
+
 
 
 class TestReefwatchFieldDayTides(tornado.testing.AsyncTestCase):
@@ -15,6 +13,9 @@ class TestReefwatchFieldDayTides(tornado.testing.AsyncTestCase):
     @classmethod
     def setUpClass(cls):
         print "Setup"
+        cls.mongoCollectionFieldDay = mongomock.MongoClient().db.collection
+        for obj in fieldDayTestData.fieldDayList:
+            cls.mongoCollectionFieldDay.insert(obj)
 
     @classmethod
     def tearDownClass(cls):
@@ -27,7 +28,7 @@ class TestReefwatchFieldDayTides(tornado.testing.AsyncTestCase):
         """ Find a Field Day with a Tides collection with at least one tide """
         fieldDayId = filter(lambda x: 'tides' in x and any(x['tides']), fieldDayTestData.fieldDayList)[0]["_id"]
 
-        getter = FieldDayTides(mongoCollectionFieldDay)
+        getter = FieldDayTides(self.mongoCollectionFieldDay)
         fieldDayTides = yield getter.get(
             fieldDayId=fieldDayId
         )
@@ -41,7 +42,7 @@ class TestReefwatchFieldDayTides(tornado.testing.AsyncTestCase):
         """ Find a Field Day with a Tides attribute with no values """
         fieldDayId = filter(lambda x: "tides" in x and not any(x["tides"]), fieldDayTestData.fieldDayList)[0]["_id"]
 
-        getter = FieldDayTides(mongoCollectionFieldDay)
+        getter = FieldDayTides(self.mongoCollectionFieldDay)
         fieldDayTides = yield getter.get(
             fieldDayId=fieldDayId
         )
@@ -49,15 +50,50 @@ class TestReefwatchFieldDayTides(tornado.testing.AsyncTestCase):
         self.assertFalse(any(fieldDayTides))
 
     @tornado.testing.gen_test
-    def test_nonexistent_collection_get(self):
+    def test_nonexistent_colleciton_get(self):
         """ Request a collection of Tides for a given Field Day where there is no 'tides' attribute """
 
         """ Find a Field Day with no Site attribute """
         fieldDayId = filter(lambda x: 'tides' not in x, fieldDayTestData.fieldDayList)[0]["_id"]
 
-        getter = FieldDayTides(mongoCollectionFieldDay)
+        getter = FieldDayTides(self.mongoCollectionFieldDay)
         fieldDayTides = yield getter.get(
             fieldDayId=fieldDayId
         )
         self.assertIsNone(fieldDayTides)
 
+
+class TestReefwatchFieldDayTides_Updates(tornado.testing.AsyncTestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        print "Setup"
+        cls.mongoCollectionFieldDay = mongomock.MongoClient().db.collection
+        for obj in fieldDayTestData.fieldDayList:
+            cls.mongoCollectionFieldDay.insert(obj)
+
+    @classmethod
+    def tearDownClass(cls):
+        print "Teardown"
+
+    @tornado.testing.gen_test
+    def test_set_on_nonexistent_tides(self):
+        """ populat a collection of Tides for a given Field Day where there is no 'tides' attribute """
+
+        """ Find a Field Day with no Site attribute """
+        fieldDayId = filter(lambda x: 'tides' not in x, fieldDayTestData.fieldDayList)[0]["_id"]
+
+        """ Add a 'high' Tide for a given Field Day where there is no 'tides' attribute """
+
+        setter = FieldDayTides(self.mongoCollectionFieldDay)
+        updateCount = yield setter.update(
+            fieldDayId=fieldDayId,
+            high={"time": "02:50:00", "height": 0.81}
+        )
+        self.assertEqual(updateCount, 1)
+        updatedTides = self.mongoCollectionFieldDay.find_one({"_id": fieldDayId}, {"tides": 1})["tides"]
+        self.assertDictContainsSubset(updatedTides["high"], {"time": "02:50:00", "height": 0.81})
+
+
+if __name__ == "__main__":
+    pass
