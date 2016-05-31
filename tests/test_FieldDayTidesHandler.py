@@ -158,7 +158,6 @@ class TestFieldDayTidesHandler_authenticated(tornado.testing.AsyncHTTPTestCase):
         )
 
         loginResponse = self.fetch("/auth/login/dummy?" + requestQuery, follow_redirects=False)
-        self.assertEqual(loginResponse.code, 302)
 
         """ Find a Field Day with a Tides collection with at least one tide """
         fieldDayId = filter(lambda x: 'tides' in x and any(x['tides']), fieldDayTestData.fieldDayList)[0]["_id"]
@@ -167,7 +166,108 @@ class TestFieldDayTidesHandler_authenticated(tornado.testing.AsyncHTTPTestCase):
         self.assertTrue("Access-Control-Allow-Methods" in response.headers)
         self.assertItemsEqual(["GET", "OPTIONS", "POST"], response.headers["Access-Control-Allow-Methods"].split(','))
 
+    def test_nonexistent_tides_update(self):
+        """ populate a collection of Tides for a given Field Day where there is no 'tides' attribute """
+
+        requestQuery = "user_name={0}&user_handle={1}".format(
+            tornado.escape.url_escape("test1"),
+            tornado.escape.url_escape("Test user 1")
+        )
+
+        loginResponse = self.fetch("/auth/login/dummy?" + requestQuery, follow_redirects=False)
+
+        """ Find a Field Day with no Site attribute """
+        fieldDayId = filter(lambda x: 'tides' not in x, fieldDayTestData.fieldDayList)[0]["_id"]
+        tides = tornado.escape.json_encode(
+            {
+                "high": {"time": "05:17:00", "height": 0.77}
+            }
+        )
+        response = self.fetch(
+            "/field_days/{field_day_id}/tides".format(
+                field_day_id=fieldDayId
+            ),
+            method="POST",
+            body="tides={tides}".format(tides=tides),
+            follow_redirects=False
+        )
+        self.assertEqual(response.code, 200)
+        response = self.fetch(
+            "/field_days/{field_day_id}/tides".format(
+                field_day_id=fieldDayId
+            ),
+            follow_redirects=False
+        )
+        self.assertEqual(response.code, 200)
+        responseJson = tornado.escape.json_decode(response.body)
+        self.assertDictEqual(
+            {u"high": {u"time": u"05:17:00", u"height": 0.77}},
+            responseJson
+        )
+
+    def test_nonexistent_field_day_update(self):
+        """ Negative test - Updating tides of a field day which does not exist """
+
+        requestQuery = "user_name={0}&user_handle={1}".format(
+            tornado.escape.url_escape("test1"),
+            tornado.escape.url_escape("Test user 1")
+        )
+
+        loginResponse = self.fetch("/auth/login/dummy?" + requestQuery, follow_redirects=False)
+
+        """ Find a Field Day with no Site attribute """
+        fieldDayId = "000000000000000000000000"
+        tides = tornado.escape.json_encode(
+            {
+                "high": {"time": "05:17:00", "height": 0.77}
+            }
+        )
+        response = self.fetch(
+            "/field_days/{field_day_id}/tides".format(
+                field_day_id=fieldDayId
+            ),
+            method="POST",
+            body="tides={tides}".format(tides=tides),
+            follow_redirects=False
+        )
+        self.assertEqual(response.code, 500)
+
+    def test_missing_height_update(self):
+        """ Negative test - Updating tides with out specifying a tide height """
+
+        requestQuery = "user_name={0}&user_handle={1}".format(
+            tornado.escape.url_escape("test1"),
+            tornado.escape.url_escape("Test user 1")
+        )
+
+        loginResponse = self.fetch("/auth/login/dummy?" + requestQuery, follow_redirects=False)
+
+        """ Find a Field Day with no Site attribute """
+        fieldDayId = filter(lambda x: 'tides' in x and any(x['tides']), fieldDayTestData.fieldDayList)[0]["_id"]
+        tides = tornado.escape.json_encode(
+            {
+                "high": {"date_time": "05:17:00", "height": 0.77}
+            }
+        )
+        response = self.fetch(
+            "/field_days/{field_day_id}/tides".format(
+                field_day_id=fieldDayId
+            ),
+            method="POST",
+            body="tides={tides}".format(tides=tides),
+            follow_redirects=False
+        )
+        self.assertEqual(response.code, 400)
+        responseJson = tornado.escape.json_decode(response.body)
+        self.assertIn(
+            u"message",
+            responseJson
+        )
+        self.assertIn(
+            "The correct format",
+            responseJson["message"]
+        )
+
 
 if __name__ == "__main__":
     tornado.testing.main()
-

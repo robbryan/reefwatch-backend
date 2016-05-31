@@ -215,12 +215,10 @@ class FieldDayTidesHandler(BaseHandler):
         isValid = True
         message = "Valid Tide"
         missingItems = [mandatoryItem for mandatoryItem in ['time', 'height'] if (mandatoryItem not in tideObj.iterkeys())]
-        logger.warn(missingItems)
         if len(missingItems) > 0:
             return (False, "\"height\" and \"time\" are required")
 
         extraneousItems = [extraItem for extraItem in tideObj.iterkeys() if (extraItem not in ['time', 'height'])]
-        logger.warn(extraneousItems)
         if len(extraneousItems) > 0:
             return (False, "Only \"height\" and \"time\" may be specified")
 
@@ -229,20 +227,18 @@ class FieldDayTidesHandler(BaseHandler):
     @tornado.web.authenticated
     @coroutine
     def post(self, fieldDayId):
-        fieldDayTides = {}
+        fieldDayTides = dict()
         try:
             tidesStr = self.get_body_argument("tides", None)
             try:
                 if tidesStr:
                     tides = tornado.escape.json_decode(tidesStr)
-                    logger.warning(tides)
                     for tide in tides:
-                        logger.info(tide)
                         isValid, msg = self.__validateTideObject__(tides[tide])
                         if not isValid:
                             raise ValueError(msg)
 
-                        fieldDayTides[tide] = tides[tide]
+                    fieldDayTides["tides"] = tides
 
             except Exception as exTides:
                 logger.warning("Error parsing tides ({tides}): {ex}".format(tides=tidesStr, ex=exTides))
@@ -258,7 +254,8 @@ class FieldDayTidesHandler(BaseHandler):
                     highTide = tornado.escape.json_decode(highTideStr)
                     isValid, msg = self.__validateTideObject__(highTide)
                     if not isValid:
-                        raise ValueError
+                        raise ValueError(msg)
+                    fieldDayTides["high"] = highTide
                 except Exception as exTides:
                     logger.warning("Error parsing high ({tide}): {ex}".format(tide=highTideStr, ex=exTides))
                     raise ValueError(
@@ -274,13 +271,16 @@ class FieldDayTidesHandler(BaseHandler):
                     lowTide = tornado.escape.json_decode(lowTideStr)
                     isValid, msg = self.__validateTideObject__(lowTide)
                     if not isValid:
-                        raise ValueError
+                        raise ValueError(msg)
+                    fieldDayTides["low"] = lowTide
                 except Exception as exTides:
                     logger.warning("Error parsing low ({tide}): {ex}".format(tide=lowTideStr, ex=exTides))
                     raise ValueError(
                         "The correct format for the 'low' argument is a form-encoded object in the form {\"height\": f, \"time\": \"hh:mm:ss\"}"
                     )
 
+            if not any(fieldDayTides):
+                raise tornado.web.MissingArgumentError("One of \"tides\", \"high\" or  \"low\" msut be specified")
         except (ValueError, tornado.web.MissingArgumentError) as exArgument:
             errorMessage = exArgument
             self.set_status(400)
@@ -290,13 +290,16 @@ class FieldDayTidesHandler(BaseHandler):
 
         entitySetter = self.__persistentEntityObj__
         try:
-            updateCount = entitySetter.update(
+            print fieldDayTides
+            updateCount = yield entitySetter.update(
                 fieldDayId=fieldDayId,
-                tides=fieldDayTides
+                **fieldDayTides # dict of args "tides" or "high" and/or "low"
             )
+            if updateCount <= 0:
+                raise Exception("Zero Field Days were updated")
         except Exception as ex:
             logger.error("{0}".format(ex))
-            errorMessage = "An error occured while attempting to retireve the requested Field Day Tides"
+            errorMessage = "An error occured while attempting to update the requested Field Day Tides"
             self.set_status(500)
             self.add_header(
                 "error", "{0}".format(
