@@ -1,4 +1,5 @@
 # reefwatch-backend
+[![Build Status](https://travis-ci.org/pablo-libre/reefwatch-backend.svg?branch=master)](https://travis-ci.org/pablo-libre/reefwatch-backend)
 
 ## Setup
 You will need [Tornado](https://tornadoweb.org) light-weight, non-blocking webserver installed and some libraries
