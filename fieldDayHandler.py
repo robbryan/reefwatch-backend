@@ -132,7 +132,7 @@ class FieldDayHandler(BaseHandler):
         try:
             user = self.get_current_user()
             if user and any(user):
-                pass # POST, PUT and DELETE to follow
+                allowedMethods.append("PUT") # DELETE to follow
         except Exception as ex:
             logger.error(ex)
 
@@ -166,6 +166,10 @@ class FieldDayHandler(BaseHandler):
         else:
             self.finish(fieldDayEntity)
 
+    @tornado.web.authenticated
+    @coroutine
+    def put(self, fieldDayId):
+        self.finish()
 
 class FieldDayTidesHandler(BaseHandler):
 

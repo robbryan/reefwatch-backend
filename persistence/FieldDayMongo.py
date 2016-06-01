@@ -37,13 +37,24 @@ class PersistentFieldDay(PersistentFieldDayBase):
 
         mongoQuery = {
             "$set": {
-                "$currentDate": {
-                    "last_modified": True
-                }
             }
         }
-        result = self.__mongoDbCollection__.update_one({"_id": fieldDayId}, mongoQuery)
-        callback(result.modified_count)
+
+        if "description" in kwargs:
+            description = kwargs["description"]
+            mongoQuery["$set"]["description"] = description
+
+        if any(mongoQuery["$set"]):
+            mongoQuery["$set"]["$currentDate"] = {
+                "last_modified": True
+            }
+            result = self.__mongoDbCollection__.find_one_and_update(
+                {"_id": fieldDayId},
+                mongoQuery
+            )
+            callback(1 if result else 0)
+        else:
+            raise ValueError("No field day information to set")
 
 
 class PersistentFieldDayTides(PersistentFieldDayBase):
