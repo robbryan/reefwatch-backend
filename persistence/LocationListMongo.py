@@ -4,13 +4,11 @@ __copyright__ = "Copyright 2016, Paul Staszyc"
 import tornado.concurrent
 import pymongo.errors
 
-from persistence.LocationListPersistenceBase import PersistentLocationListBase
-
 import logging
 logger = logging.getLogger(__name__)
 
 
-class PersistentLocationList(PersistentLocationListBase):
+class PersistentLocationList(object):
 
     def __init__(self, mongoDbCollection):
         self.__mongoDbCollection__ = mongoDbCollection
