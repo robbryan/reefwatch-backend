@@ -11,7 +11,7 @@ for obj in fieldDayTestData.fieldDayList:
     mongoCollectionFieldDay.insert(obj)
 
 
-class TestReefwatchFieldDay(tornado.testing.AsyncTestCase):
+class TestReefwatchFieldDaySites(tornado.testing.AsyncTestCase):
 
     @classmethod
     def setUpClass(cls):

@@ -34,8 +34,8 @@ from surveyHandler import SurveyTypeListHandler, FieldDaySurveyListHandler
 from locationHandler import LocationListHandler, LocationHandler
 
 """ Sites """
-from persistence.SiteListPersistenceBase import PersistentSiteListDummy as PersistentSiteList
-from siteHandler import SiteListHandler, FieldDaySiteListHandler, FieldDaySiteHandler
+from siteHandler import SiteListHandler
+from fieldDaySiteHandler import FieldDaySiteListHandler, FieldDaySiteHandler
 
 from baseHandler import BaseAuthenticatedHandler
 
@@ -155,6 +155,11 @@ else:
         mongoDb[reefwatchLocationOptions["location_collection"]]
     )
 
+    PersistentLocationSiteListModule = importlib.import_module("persistence.LocationSiteListMongo")
+    PersistentLocationSiteList = PersistentLocationSiteListModule.PersistentLocationSiteList(
+        mongoDb[reefwatchLocationOptions["location_collection"]]
+    )
+
     try:
         surveyTypeOptions = options.group_dict("survey_type")
     except KeyError as exNoMongoOptions:
@@ -241,11 +246,13 @@ class Application(tornado.web.Application):
                 r"/field_days/({id})/sites".format(id=mongoIdRegex),
                 FieldDaySiteListHandler,
                 dict(
-                    persistentFieldDaySiteListObj=PersistentFieldDaySiteList
+                    persistentFieldDaySiteListObj=PersistentFieldDaySiteList,
+                    persistentLocationEntityObj=PersistentLocationEntity,
+                    persistentFieldDayEntityObj=PersistentFieldDayEntity
                 )
             ),
             (r"/field_days/({id})".format(id=mongoIdRegex), FieldDayHandler, dict(persistentEntityObj=PersistentFieldDayEntity)),
-            (r"/locations/({id})/sites".format(id=mongoIdRegex), SiteListHandler, dict(persistentEntityListObj=PersistentSiteList())),
+            (r"/locations/({id})/sites".format(id=mongoIdRegex), SiteListHandler, dict(persistentEntityListObj=PersistentLocationSiteList)),
             (r"/locations/({id})".format(id=mongoIdRegex), LocationHandler, dict(persistentLocationEntityObj=PersistentLocationEntity)),
             (r"/locations", LocationListHandler, dict(persistentLocationListObj=PersistentLocationList)),
             (r"/surveys", SurveyTypeListHandler, dict(persistentSurveyListObj=PersistentSurveyTypeList)),

@@ -7,6 +7,7 @@ import pymongo.errors
 from SiteListPersistenceBase import PersistentFieldDaySiteListBase
 
 from bson.objectid import ObjectId
+import bson.errors
 import logging
 logger = logging.getLogger(__name__)
 
@@ -23,8 +24,10 @@ class PersistentFieldDaySiteList(PersistentFieldDaySiteListBase):
         assert(type(offset) == int)
 
         if type(fieldDayId) in [str, unicode]:
-            fieldDayId = ObjectId(fieldDayId)
-
+            try:
+                fieldDayId = ObjectId(fieldDayId)
+            except bson.errors.InvalidId as exId:
+                pass
         """
             It would be possible to use aggregates, count and slice to do this
             but given the likely small number of elements (upto 3) expected,
@@ -46,6 +49,20 @@ class PersistentFieldDaySiteList(PersistentFieldDaySiteListBase):
             resultCount = 0
 
         callback((siteList, resultCount))
+
+    @tornado.concurrent.return_future
+    def add(self, callback, fieldDayId, siteCode, **kwargs):
+        if type(fieldDayId) in [str, unicode]:
+            try:
+                fieldDayId = ObjectId(fieldDayId)
+            except bson.errors.InvalidId as exId:
+                pass
+
+        result = self.__mongoDbCollection__.find_one_and_update(
+            {"_id": fieldDayId, "sites.site_code": {"$nin": [siteCode]}},
+            {"$push": {"sites": {"site_code": siteCode}}}
+        )
+        callback(1 if result else 0)
 
 
 if __name__ == "__main__":

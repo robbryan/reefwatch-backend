@@ -13,7 +13,6 @@ fieldDayList = [
         "leader_id": "1000",
         "sites": [
             {
-                "site_id": "1000",
                 "site_code": "ANU",
                 "surveys": [
                     {
@@ -32,7 +31,6 @@ fieldDayList = [
                 ]
             },
             {
-                "site_id": "2000",
                 "site_code": "ANM",
                 "surveys": [
                     {
@@ -158,7 +156,7 @@ locationList = [
         "sites": [
             {
                 "site_code": "LBNU",
-                "description": "LBUpper"
+                "description": "Upper"
             },
             {
                 "site_code": "LBNM",

@@ -6,8 +6,6 @@ from authHandlerDummy import DummyLoginHandler
 from siteHandler import SiteListHandler
 from persistence.LocationSiteListMongo import PersistentLocationSiteList as LocationSiteList
 
-from persistence.SiteListPersistenceBase import PersistentSiteListDummy as PersistentSiteList
-
 import logging
 import Cookie
 import mongomock
@@ -37,7 +35,7 @@ class TestLocationSiteListHandler_unauthenticated(tornado.testing.AsyncHTTPTestC
                 (
                     r'/locations/([A-Za-z0-9]+)/sites',
                     SiteListHandler,
-                    dict(persistentEntityListObj=PersistentSiteList())
+                    dict(persistentEntityListObj=LocationSiteList(self.mongoCollectionLocationSite))
                 )
                 ]
             )

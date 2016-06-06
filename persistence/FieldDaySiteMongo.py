@@ -26,8 +26,9 @@ class PersistentFieldDaySite(object):
 
         if result:
             fieldDaySite = filter(lambda x: x["site_code"] == siteCode, result["sites"])[0]
-
-        callback(fieldDaySite)
+            callback(fieldDaySite)
+        else:
+            callback(None)
 
 
 if __name__ == "__main__":

@@ -31,6 +31,7 @@ class SiteListHandler(BaseEntityListHandler):
         self.set_header("Access-Control-Allow-Methods", ",".join(allowedMethods))
         self.finish()
 
+    @coroutine
     def get(self, location=None):
         try:
             pageSize, pageNum = self.getPageSizeAndNum()
@@ -44,8 +45,7 @@ class SiteListHandler(BaseEntityListHandler):
         limit = pageSize
         entityListGetter = self.__persistentEntityListObj__
         try:
-            logger.warning("Preparing to gt sites for location ({})".format(location))
-            entityList, totalRecordCount = entityListGetter.get(
+            entityList, totalRecordCount = yield entityListGetter.get(
                 locationId=location,
                 limit=limit,
                 offset=offset
@@ -60,59 +60,7 @@ class SiteListHandler(BaseEntityListHandler):
             return
         except Exception as ex:
             logger.error("{0}".format(ex))
-            errorMessage = "An error occured while attempting to retireve the Sites for this Location: {}".format(fieldDayId)
-            self.set_status(500)
-            self.add_header(
-                "error", "{0}".format(
-                    errorMessage
-                )
-            )
-            self.finish({"message": "{0}".format(errorMessage)})
-            return
-        
-        self.setResponseHeadersList(
-            pageNum=pageNum,
-            pageSize=pageSize,
-            totalRecordCount=totalRecordCount
-        )
-        self.write({"data": entityList})
-
-
-class FieldDaySiteListHandler(BaseEntityListHandler):
-
-    def initialize(self, persistentFieldDaySiteListObj):
-        self.__persistentEntityListObj__ = persistentFieldDaySiteListObj
-
-    @coroutine
-    def get(self, fieldDayId):
-        try:
-            pageSize, pageNum = self.getPageSizeAndNum()
-        except ValueError as exPage:
-            self.set_status(400)
-            self.add_header("error", "{0}".format(exPage))
-            self.finish({"message": "{0}".format(exPage)})
-            return
-
-        offset = (pageNum-1)*pageSize
-        limit = pageSize
-        entityListGetter = self.__persistentEntityListObj__
-        try:
-            fieldDaySiteList, totalRecordCount = yield entityListGetter.get(
-                fieldDayId=fieldDayId,
-                limit=limit,
-                offset=offset
-            )
-            if fieldDaySiteList is None:
-                raise KeyError("Sites have not been recorded for this Field Day")
-        except KeyError as exNotFound:
-            errorMessage = exNotFound
-            self.set_status(404)
-            self.add_header("error", "{0}".format(errorMessage))
-            self.finish({"message": "{0}".format(errorMessage)})
-            return
-        except Exception as ex:
-            logger.error("{0}".format(ex))
-            errorMessage = "An error occured while attempting to retireve the Sites for this Field Day: {}".format(fieldDayId)
+            errorMessage = "An error occured while attempting to retireve the Sites for this Location: {}".format(location)
             self.set_status(500)
             self.add_header(
                 "error", "{0}".format(
@@ -127,45 +75,7 @@ class FieldDaySiteListHandler(BaseEntityListHandler):
             pageSize=pageSize,
             totalRecordCount=totalRecordCount
         )
-        self.finish({"data": fieldDaySiteList})
-
-
-class FieldDaySiteHandler(BaseHandler):
-
-    def initialize(self, persistentFieldDaySiteEntityObj):
-        self.__persistentEntityObj__ = persistentFieldDaySiteEntityObj
-
-    def options(self, *args):
-        allowedMethods = list(["OPTIONS", "GET"])
-        self.set_header("Access-Control-Allow-Methods", ",".join(allowedMethods))
-        self.finish()
-
-    @coroutine
-    def get(self, fieldDayId, siteCode):
-        entityGetter = self.__persistentEntityObj__
-        try:
-            fieldDaySiteEntity = yield entityGetter.get(fieldDayId=fieldDayId, siteCode=siteCode)
-            if (not fieldDaySiteEntity or not any(fieldDaySiteEntity)):
-                raise KeyError("The Site for Field Day you have requested do not exist")
-        except KeyError as exNotFound:
-            errorMessage = exNotFound
-            self.set_status(404)
-            self.add_header("error", "{0}".format(errorMessage))
-            self.finish({"message": "{0}".format(errorMessage)})
-            return
-        except Exception as ex:
-            logger.error("{0}".format(ex))
-            errorMessage = "An error occured while attempting to retireve the requested Field Day Site"
-            self.set_status(500)
-            self.add_header(
-                "error", "{0}".format(
-                    errorMessage
-                )
-            )
-            self.finish({"message": "{0}".format(errorMessage)})
-            return
-        else:
-            self.finish(fieldDaySiteEntity)
+        self.finish({"data": entityList})
 
 
 if __name__ == "__main__":

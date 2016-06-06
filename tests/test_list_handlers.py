@@ -30,15 +30,18 @@ LocationEntityMongo = LocationEntityMongo(mongoCollectionLocation)
 
 """ Sites """
 from persistence.FieldDaySiteListMongo import PersistentFieldDaySiteList
-from siteHandler import SiteListHandler, FieldDaySiteListHandler
+from siteHandler import SiteListHandler
+from fieldDaySiteHandler import FieldDaySiteListHandler
 
 """ Field Days """
 from fieldDayHandler import FieldDayListHandler
 from persistence.FieldDayListMongo import PersistentFieldDayList as FieldDayListMongo
+from persistence.FieldDayMongo import PersistentFieldDay as FieldDayMongo
 mongoCollectionFieldDay = mongomock.MongoClient().db.collection
 for obj in fieldDayTestData.fieldDayList:
     mongoCollectionFieldDay.insert(obj)
 FieldDayListMongo = FieldDayListMongo(mongoCollectionFieldDay)
+FieldDayMongo = FieldDayMongo(mongoCollectionFieldDay)
 
 
 class TestListHandlers(tornado.testing.AsyncHTTPTestCase):
@@ -67,7 +70,9 @@ class TestListHandlers(tornado.testing.AsyncHTTPTestCase):
                     r"/mongo/field_days/([A-Za-z0-9]+)/sites",
                     FieldDaySiteListHandler,
                     dict(
-                        persistentFieldDaySiteListObj=PersistentFieldDaySiteList(mongoCollectionFieldDay)
+                        persistentFieldDaySiteListObj=PersistentFieldDaySiteList(mongoCollectionFieldDay),
+                        persistentLocationEntityObj=LocationEntityMongo,
+                        persistentFieldDayEntityObj=FieldDayMongo
                     )
                 ),
                 (r'/mongo/locations', LocationListHandler, dict(persistentLocationListObj=LocationListMongo)),
