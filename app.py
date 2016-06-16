@@ -199,9 +199,15 @@ class Application(tornado.web.Application):
             cookie_secret=options.cookie_secret
         )
 
-        self.logger.setLevel(
-            logging.DEBUG if hasattr(options, 'debug') and options.debug else logging.INFO
-        )
+        if hasattr(options, 'logging'):
+            if options.logging.upper() == 'DEBUG':
+                self.logger.setLevel(logging.DEBUG)
+            elif options.logging.upper() == 'WARNING':
+                self.logger.setLevel(logging.WARNING)
+            else:
+                self.logger.setLevel(logging.INFO)
+        elif hasattr(options, 'debug') and options.debug:
+            self.logger.setLevel(logging.DEBUG)
 
         """
             Regular Expression for matching GUIDs.
