@@ -37,6 +37,9 @@ from locationHandler import LocationListHandler, LocationHandler
 from siteHandler import SiteListHandler
 from fieldDaySiteHandler import FieldDaySiteListHandler, FieldDaySiteHandler
 
+""" Observations """
+from fieldDaySiteObservationsHandler import FieldDaySiteObservationsHandler
+
 from baseHandler import BaseAuthenticatedHandler
 
 import importlib
@@ -136,7 +139,7 @@ else:
     PersistentFieldDaySurveyList = PersistentFieldDaySurveyListModule.PersistentFieldDaySurveyList(
         mongoDb[fieldDayOptions["field_day_collection"]]
     )
-    
+
     try:
         reefwatchLocationOptions = options.group_dict("location")
     except KeyError as exNoMongoOptions:
@@ -233,6 +236,16 @@ class Application(tornado.web.Application):
                 FieldDaySurveyListHandler,
                 dict(
                     persistentFieldDaySurveyListObj=PersistentFieldDaySurveyList
+                )
+            ),
+            (
+                r"/field_days/({field_day_id})/sites/({site_code})/observations".format(
+                    field_day_id=mongoIdRegex,
+                    site_code=r"[a-zA-Z]{2,}"
+                ),
+                FieldDaySiteObservationsHandler,
+                dict(
+                    persistentFieldDaySiteEntityObj=PersistentFieldDaySite
                 )
             ),
             (

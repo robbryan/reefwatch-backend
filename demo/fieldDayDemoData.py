@@ -14,18 +14,20 @@ fieldDayList = [
         "sites": [
             {
                 "site_code": "ANU",
+                "observations": {
+                    "time": "12:42:00",
+                    "weather": {
+                        "wind_direction": "NW",
+                        "wind_force": 1,
+                        "amount_of_cloud": 3,
+                        "rainfall": 0,
+                        "comments": "Weather Comments"
+                    },
+                    "volunteers": ["user1@gmail.com", "user2@gmail.com"]
+                },
                 "surveys": [
                     {
                         "survey_type": "PIT",
-                        "time": "12:30:00",
-                        "weather": {
-                            "wind_direction": "NW",
-                            "wind_force": 1,
-                            "amount_of_cloud": 3,
-                            "rainfall": 0,
-                            "comments": "Weather Comments"
-                        },
-                        "sea_state": 2,
                         "comments": "Survey Comments"
                     }
                 ]
@@ -59,8 +61,7 @@ fieldDayList = [
                     }
                 ]
             }
-        ],
-        "volunteers": [] # calculated from child-surveys
+        ]
     },
     {
         "_id": objectid.ObjectId("573e7696c1ed602daf609008"),
@@ -71,18 +72,19 @@ fieldDayList = [
         "sites": [
             {
                 "site_code": "ASU",
+                "observations": {
+                    "time": "10:20:00",
+                    "weather": {
+                        "wind_direction": "W",
+                        "wind_force": 1,
+                        "amount_of_cloud": 5,
+                        "rainfall": 0,
+                        "comments": "ASU - Weather Comments"
+                    }
+                },
                 "surveys": [
                     {
                         "survey_type": "PIT",
-                        "time": "10:20:00",
-                        "weather": {
-                            "wind_direction": "W",
-                            "wind_force": 1,
-                            "amount_of_cloud": 5,
-                            "rainfall": 0,
-                            "comments": "ASU PIT - Weather Comments"
-                        },
-                        "sea_state": 1,
                         "comments": "ASU PIT - Survey Comments"
                     }
                 ]
