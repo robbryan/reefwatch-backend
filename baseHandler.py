@@ -10,6 +10,10 @@ import tornado.web
 import tornado.escape
 
 import math
+import logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logger.getEffectiveLevel())
+
 
 class BaseHandler(tornado.web.RequestHandler):
 
@@ -21,8 +25,14 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return tornado.escape.json_decode(user_json)
 
-    def prepare(self):
-        self.set_header("Access-Control-Allow-Origin", "*")
+    def addAccessHeaders(self):
+        self.set_header("Access-Control-Allow-Headers", "origin, content-type, accept")
+        try:
+            origin = self.request.headers.get('Origin')
+            if origin:
+                self.set_header("Access-Control-Allow-Origin", origin)
+        except Exception:
+            logger.info("No origin header from client")
 
 
 class BaseAuthenticatedHandler(BaseHandler):

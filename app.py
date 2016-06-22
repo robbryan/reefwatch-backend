@@ -308,6 +308,7 @@ def main():
         define("debug", default=False, help="Set some logging options + auto-reload on file change")
     tornado.options.parse_command_line()
     http_server = tornado.httpserver.HTTPServer(Application())
+    http_server.xheaders = True
     http_server.listen(options.port)
     print "Listening on port: {port}".format(port=options.port)
     tornado.ioloop.IOLoop.instance().start()

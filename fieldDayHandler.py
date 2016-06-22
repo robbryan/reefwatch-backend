@@ -31,6 +31,7 @@ class FieldDayListHandler(BaseEntityListHandler):
             logger.error(ex)
 
         self.set_header("Access-Control-Allow-Methods", ",".join(allowedMethods))
+        self.addAccessHeaders()
         self.finish()
 
     @coroutine
@@ -117,6 +118,7 @@ class FieldDayListHandler(BaseEntityListHandler):
 
         self.set_status(201)
         self.setResponseHeadersNewEntity(newFieldDayId)
+        self.addAccessHeaders()
         self.finish(
             {"message": "New Field Day ({0}) successfully created".format(newFieldDayId)}
         )
@@ -137,6 +139,7 @@ class FieldDayHandler(BaseHandler):
             logger.error(ex)
 
         self.set_header("Access-Control-Allow-Methods", ",".join(allowedMethods))
+        self.addAccessHeaders()
         self.finish()
 
     @coroutine
@@ -186,6 +189,7 @@ class FieldDayTidesHandler(BaseHandler):
             logger.error(ex)
 
         self.set_header("Access-Control-Allow-Methods", ",".join(allowedMethods))
+        self.addAccessHeaders()
         self.finish()
 
     @coroutine
@@ -313,6 +317,7 @@ class FieldDayTidesHandler(BaseHandler):
             self.finish({"message": "{0}".format(errorMessage)})
             return
 
+        self.addAccessHeaders()
         self.finish(
             {"message": "Tides for Field Day ({0}) successfully updated".format(fieldDayId)}
         )
