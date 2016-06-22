@@ -25,7 +25,7 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return tornado.escape.json_decode(user_json)
 
-    def addAccessHeaders(self):
+    def prepare(self):
         self.set_header("Access-Control-Allow-Headers", "origin, content-type, accept")
         try:
             origin = self.request.headers.get('Origin')

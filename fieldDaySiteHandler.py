@@ -37,7 +37,6 @@ class FieldDaySiteListHandler(BaseEntityListHandler):
             logger.error(ex)
 
         self.set_header("Access-Control-Allow-Methods", ",".join(allowedMethods))
-        self.addAccessHeaders()
         self.finish()
 
     @coroutine
@@ -146,7 +145,6 @@ class FieldDaySiteListHandler(BaseEntityListHandler):
 
         self.set_status(201)
         self.setResponseHeadersNewEntity(siteCode)
-        self.addAccessHeaders()
         self.finish(
             {"message": "New Site ({0}) successfully created for Field Day".format(siteCode)}
         )
