@@ -137,7 +137,6 @@ class FieldDayHandler(BaseHandler):
             logger.error(ex)
 
         self.set_header("Access-Control-Allow-Methods", ",".join(allowedMethods))
-        self.addAccessHeaders()
         self.finish()
 
     @coroutine
