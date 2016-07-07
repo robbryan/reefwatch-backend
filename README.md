@@ -59,11 +59,12 @@ The structure of of the API creates a hierarchy of location-and-date -> site -> 
 | - Tides
 | - Sites
 | | - Site 1
+| | | | - Observations
+| | | | | - Weather
+| | | | | - Volunteers
 | | | - Survey 1
 | | | | - Survey Type
-| | | | - Weather
-| | | | - Observations
-| | | | | - discrete observation
+| | | | - Survey Results
 | | - Site 2
 ```
 The API is RESTful and so most branches in the hierarchy can be used to retrieve a collection/list or an individual item using its ID
@@ -83,6 +84,8 @@ List of routes
 /field_days/{id}
 /field_days/{id}/tides
 /field_days/{id}/sites
+/field_days/{id}/sites/{id}
+/field_days/{id}/sites/{id}/observations
 /locations
 /locations/{id}
 ```
