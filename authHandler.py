@@ -23,7 +23,7 @@ class AuthHandler(BaseHandler):
                 handle = "Reefwatch User"
 
             self.set_secure_cookie("user", tornado.escape.json_encode({"user_id": user["provider_user_id"], "handle": handle}))
-            self.redirect("/auth/success")
+            self.redirect("/")
 
 
 class LogoutHandler(BaseHandler):
