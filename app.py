@@ -58,7 +58,7 @@ else:
         from pymongo import MongoClient
         mongoClient = MongoClient(persistenceOptions["mongo_instance"])
         mongoDb = mongoClient[persistenceOptions["mongo_database"]]
-        if "mongo_user" in persistenceOptions:
+        if "mongo_user" in persistenceOptions and persistenceOptions["mongo_user"]:
             mongoDb.authenticate(persistenceOptions["mongo_user"], persistenceOptions["mongo_password"])
     else:
         noMongoMessage = "Warning! No persistence engine was specified for Field Day List - See localSettings.py.sample for examples"
