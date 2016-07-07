@@ -283,16 +283,20 @@ class Application(tornado.web.Application):
         if hasattr(options, "google_client_id"):
             google_oauth = {"key": options.google_client_id, "secret": options.google_client_secret}
             settings["google_oauth"] = google_oauth
+            if hasattr(options, "google_auth_callback"):
+                googleAuthCallback = options.google_auth_callback
+            else:
+                googleAuthCallback = "auth/callback/google"
             from authHandler import GoogleLoginHandler
             handlers.append((
                 r"/auth/login/google",
                 GoogleLoginHandler,
-                dict(callbackPath="auth/callback/google")
+                dict(callbackPath=googleAuthCallback)
             ))
             handlers.append((
                 r"/auth/callback/google",
                 GoogleLoginHandler,
-                dict(callbackPath="auth/callback/google")
+                dict(callbackPath=googleAuthCallback)
             ))
         else:
             # Dummy Authentication
