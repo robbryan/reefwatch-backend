@@ -41,6 +41,7 @@ class PersistentFieldDayList(PersistentFieldDayListBase):
                 "date": 1,
                 "description": 1,
                 "location_id": 1,
+                "location": 1,
                 "leader_id": 1,
                 "tides": 1,
                 "sites": 1

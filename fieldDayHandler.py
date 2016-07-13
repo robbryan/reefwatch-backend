@@ -84,7 +84,8 @@ class FieldDayListHandler(BaseEntityListHandler):
             else:
                 raise ValueError("The location_id specified ({id}) is not valid".format(id=fieldDayLocation))
 
-            fieldDay["location"] = fieldDayLocation
+            fieldDay["location_id"] = fieldDayLocation
+            fieldDay["location"] = locationDescription
 
             """ Get or synthesise Description """
             fieldDayDescription = self.get_body_argument("description", None)
