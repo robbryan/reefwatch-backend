@@ -46,6 +46,8 @@ FieldDayMongo = FieldDayMongo(mongoCollectionFieldDay)
 
 class TestListHandlers(tornado.testing.AsyncHTTPTestCase):
 
+    __cookieSecret__ = "THIS_IS_THE_TEST_COOKIE_SECRET"
+
     def __init__(self, *rest):
         tornado.testing.AsyncHTTPTestCase.__init__(self, *rest)
 
@@ -81,6 +83,7 @@ class TestListHandlers(tornado.testing.AsyncHTTPTestCase):
                 ]
             )
         application.settings = dict(
+            cookie_secret=self.__cookieSecret__
             )
 
         return application
