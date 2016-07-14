@@ -6,6 +6,9 @@ from authHandlerDummy import DummyLoginHandler
 from authHandler import LogoutHandler
 from baseHandler import BaseHandler
 
+from mongomock import MongoClient
+from persistence.UserListMongo import PersistentUserList
+
 import logging
 import Cookie
 
@@ -87,7 +90,8 @@ class TestDummyAuthHandler(tornado.testing.AsyncHTTPTestCase):
         application = tornado.web.Application([
                 (
                     r"/auth/login/dummy",
-                    DummyLoginHandler
+                    DummyLoginHandler,
+                    dict(persistentUserListObj=PersistentUserList(MongoClient().test.reefwatch_user))
                 ),
                 (r'/auth/success', LoginSuccessHandler),
                 (r'/auth/Logout', LogoutHandler),
@@ -115,7 +119,16 @@ class TestDummyAuthHandler(tornado.testing.AsyncHTTPTestCase):
             tornado.escape.url_escape("Test user 1")
         )
         loginResponse = self.fetch("/auth/login/dummy?" + requestQuery, follow_redirects=False)
-        self.assertEqual(loginResponse.code, 302)
+        self.assertEqual(loginResponse.code, 200)
+        responseJson = tornado.escape.json_decode(loginResponse.body)
+        self.assertIn(
+            u"message",
+            responseJson
+        )
+        self.assertIn(
+            "Successfully authenticated as",
+            responseJson["message"]
+        )
 
         print "COOKIES: {0}".format(self.cookies.output())
         authenticatedResponse = self.fetch("/auth/success", follow_redirects=False)

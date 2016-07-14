@@ -4,7 +4,7 @@ from baseHandler import BaseHandler
 
 import logging
 logger = logging.getLogger(__name__)
-logger.setLevel(logger.getEffectiveLevel())
+logger.setLevel(logging.DEBUG)
 
 
 class AuthHandler(BaseHandler):
@@ -15,15 +15,63 @@ class AuthHandler(BaseHandler):
             raise tornado.web.HTTPError(500, "OAuth authentication was not successful")
 
         else:
-            if "name" in user and user["name"] != "":
-                handle = user["name"]
+            if "given_name" in user and user["given_name"] != "":
+                handle = user["given_name"]
             elif "screen_name" in user and user["screen_name"] != "":
                 handle = user["screen_name"]
             else:
-                handle = "Reefwatch User"
+                handle = user["name"]
 
-            self.set_secure_cookie("user", tornado.escape.json_encode({"user_id": user["provider_user_id"], "handle": handle}))
-            self.redirect("/")
+            user["user_handle"] = handle
+
+            """ Check if user exists """
+            self.__persistentUserListObj__.get(
+                query={"email": user["email"]},
+                callback=lambda (x, y): self.__onGetMatchingUserList__(userDetails=user, userList=x, callback=callback)
+            )
+
+    def __setCookieAndRedirect__(self, userDetails, callback):
+        try:
+            logger.info("Successfully authenticated as {}".format(userDetails["user_handle"]))
+            self.set_secure_cookie(
+                "user",
+                tornado.escape.json_encode(
+                    {
+                        "user_id": userDetails["id"],
+                        "handle": userDetails["user_handle"]
+                    }
+                )
+            )
+            self.finish({"message": "Successfully authenticated as {}".format(userDetails["user_handle"])})
+            callback()
+        except Exception as ex:
+            logger.exception(ex)
+
+    def __onGetMatchingUserList__(self, userDetails, userList, callback):
+        if len(userList) == 1:
+            self.__setCookieAndRedirect__(userDetails=userList[0], callback=callback)
+        else:
+            assert len(userList) == 0, "Expected either zero or one matches for users with e-mail address {}".format(userDetails["email"])
+            try:
+                self.__persistentUserListObj__.add(
+                    callback=lambda x: self.__setCookieAndRedirect__(
+                        userDetails={
+                            "user_handle": userDetails["user_handle"],
+                            "id": x,
+                            "full_name": userDetails["name"]
+                        },
+                        callback=callback
+                    ),
+                    userFullName=userDetails["name"],
+                    userHandle=userDetails["user_handle"],
+                    emailAddress=userDetails["email"],
+                    providerGeneratedId=userDetails["provider_user_id"] if "provider_user_id" in userDetails else None
+                )
+            except Exception as ex:
+                logger.exception(ex)
+
+    def initialize(self, persistentUserListObj):
+        self.__persistentUserListObj__ = persistentUserListObj
 
 
 class LogoutHandler(BaseHandler):
@@ -35,7 +83,8 @@ class LogoutHandler(BaseHandler):
 
 class GoogleLoginHandler(AuthHandler, tornado.auth.GoogleOAuth2Mixin):
 
-    def initialize(self, callbackPath):
+    def initialize(self, callbackPath, **kwargs):
+        super(GoogleLoginHandler, self).initialize(kwargs.get("persistentUserListObj"))
         callbackUri = "{prot}://{host}/{path}".format(
             prot=self.request.protocol,
             host=self.request.host,

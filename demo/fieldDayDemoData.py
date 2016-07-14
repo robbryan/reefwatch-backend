@@ -6,6 +6,7 @@ fieldDayList = [
         "date": "2015-03-05",
         "description": "Aldinga North - March 2015",
         "location_id": objectid.ObjectId('574199a764cc93726de9e044'),
+        "location": "Aldinga North",
         "tides": {
             "high": {"time": "04:40", "height": 1.94},
             "low": {"time": "10:30", "height": 0.53}
@@ -68,6 +69,7 @@ fieldDayList = [
         "date": "2015-03-05",
         "description": "Aldinga South - March 2015",
         "location_id": objectid.ObjectId('57419a1364cc93726de9e045'),
+        "location": "Aldinga South",
         "leader_id": "1000",
         "sites": [
             {
@@ -100,6 +102,7 @@ fieldDayList = [
         "date": "2015-10-12",
         "description": "Lady Bay North - October 2015",
         "location_id": objectid.ObjectId('57419a1b64cc93726de9e046'),
+        "location": "Lady Bay North",
         "leader_id": "1000"
     },
     {
@@ -107,6 +110,7 @@ fieldDayList = [
         "date": "2015-12-03",
         "description": "Lady Bay South - December 2015",
         "location_id": objectid.ObjectId('57419a3764cc93726de9e047'),
+        "location": "Lady Bay South",
         "leader_id": "1000",
         "tides": {}
     }
@@ -307,5 +311,24 @@ surveyTypeList = [
         "name": "Intertidal Mobile Species Quadrat Survey",
         "question": "How does the abundance of mobile reef animals change in the area over time?",
         "method": """2 x 20m transects, 50 cm apart, parallel to the shoreline. Equipment: two tape measures, or 20 m lengths of rope and 10 stakes (about 50 cm long).Sections are marked at 2 m intervals to make 10 rectangles of 2 m long x 50 cm wide. Individuals are counted on in five rectangles at 0-2, 4-6, 8-10, 12-14 and 16-18 m. Individuals are only counted if they are bigger than 5 mm in length."""
+    }
+]
+
+userList = [
+    {
+        "_id": objectid.ObjectId('57849bdf64cc932fc08858d3'),
+        "handle": "Billy Moon",
+        "full_name": "Christopher Robin",
+        "email_addresses": [
+            {
+                "email": "christopher.robin@hundred.acre.wood",
+                "status": "active",
+                "create_date_time": "2016-05-03 09:38:17",
+                "provider_user_id": "2F49940F92295CAB2AC96896"
+            }
+        ],
+        "status": "active",
+        "create_date_time": "2016-05-03 09:38:17",
+        "roles": ['admin']
     }
 ]

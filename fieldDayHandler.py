@@ -17,6 +17,8 @@ logger.setLevel(logger.getEffectiveLevel())
 
 class FieldDayListHandler(BaseEntityListHandler):
 
+    auditLog = logging.getLogger("audit")
+
     def initialize(self, persistentEntityListObj, persistentLocationEntityObj):
         self.__persistentEntityListObj__ = persistentEntityListObj
         self.__persistentLocationEntityObj__ = persistentLocationEntityObj
@@ -121,6 +123,14 @@ class FieldDayListHandler(BaseEntityListHandler):
         self.finish(
             {"message": "New Field Day ({0}) successfully created".format(newFieldDayId)}
         )
+        self.auditLog.info(
+            "CREATE FIELD DAY",
+            extra={
+                "user": self.userId,
+                "what": "POST Field Day {} via {}".format(newFieldDayId, type(self).__name__),
+                "path": self.request.path
+            }
+        )
 
 
 class FieldDayHandler(BaseHandler):
@@ -172,7 +182,10 @@ class FieldDayHandler(BaseHandler):
     def put(self, fieldDayId):
         self.finish()
 
+
 class FieldDayTidesHandler(BaseHandler):
+
+    auditLog = logging.getLogger("audit")
 
     def initialize(self, persistentEntityObj):
         self.__persistentEntityObj__ = persistentEntityObj
@@ -182,7 +195,7 @@ class FieldDayTidesHandler(BaseHandler):
         try:
             user = self.get_current_user()
             if user and any(user):
-                allowedMethods.append("POST") # PUT and DELETE to follow
+                allowedMethods.append("POST")
         except Exception as ex:
             logger.error(ex)
 
@@ -285,7 +298,7 @@ class FieldDayTidesHandler(BaseHandler):
                     )
 
             if not any(fieldDayTides):
-                raise tornado.web.MissingArgumentError("One of \"tides\", \"high\" or  \"low\" msut be specified")
+                raise tornado.web.MissingArgumentError("One of \"tides\", \"high\" or  \"low\" must be specified")
         except (ValueError, tornado.web.MissingArgumentError) as exArgument:
             errorMessage = exArgument
             self.set_status(400)
@@ -316,6 +329,14 @@ class FieldDayTidesHandler(BaseHandler):
 
         self.finish(
             {"message": "Tides for Field Day ({0}) successfully updated".format(fieldDayId)}
+        )
+        self.auditLog.info(
+            "UPDATE FIELD DAY",
+            extra={
+                "user": self.userId,
+                "what": "PUT Field Day {} TIDES via {}".format(fieldDayId, type(self).__name__),
+                "path": self.request.path
+            }
         )
 
 

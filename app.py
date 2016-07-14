@@ -23,6 +23,12 @@ if not hasattr(options, "log_file"):
     define("log_file", default="access.log", help="Name of file to which to log")
 
 logging.basicConfig(filename=options.log_file, format='%(asctime)-6s: %(name)s - %(levelname)s - %(message)s')
+auditLogHandler = logging.FileHandler("audit.log")
+auditFormatter = logging.Formatter('%(asctime)-6s %(levelname)s %(user)s %(what)s %(path)s %(message)s')
+auditLogHandler.setFormatter(auditFormatter)
+auditLogger = logging.getLogger("audit")
+auditLogger.addHandler(auditLogHandler)
+auditLogger.setLevel(logging.INFO)
 
 """ Field Days """
 from fieldDayHandler import FieldDayListHandler, FieldDayHandler, FieldDayTidesHandler
@@ -54,6 +60,7 @@ except KeyError:
     raise
 else:
     """ Mongo DB Persistence """
+
     if "mongo_instance" in persistenceOptions:
         from pymongo import MongoClient
         mongoClient = MongoClient(persistenceOptions["mongo_instance"])
@@ -71,6 +78,14 @@ else:
         mongoDb = mongoClient.db
         try:
             import demo.fieldDayDemoData
+
+            if hasattr(options, "user_collection"):
+                userCollection = mongoDb[options.user_collection]
+            else:
+                userCollection = mongoDb["reefwatch_user"]
+            for user in demo.fieldDayDemoData.userList:
+                userCollection.insert(user)
+
             if hasattr(options, "field_day_collection"):
                 fieldDayCollection = mongoDb[options.field_day_collection]
             else:
@@ -97,6 +112,15 @@ else:
         except Exception as ex:
             print ex
             print "Unable to load fieldDayList from fieldDayDemoData. No Demo data available"
+
+    if hasattr(options, "user_collection"):
+        userCollection = mongoDb[options.user_collection]
+    else:
+        userCollection = mongoDb["reefwatch_user"]
+    PersistentUserListModule = importlib.import_module("persistence.UserListMongo")
+    PersistentUserList = PersistentUserListModule.PersistentUserList(
+        userCollection
+    )
 
     PersistentFieldDayListModule = importlib.import_module("persistence.FieldDayListMongo")
     try:
@@ -296,7 +320,10 @@ class Application(tornado.web.Application):
             handlers.append((
                 r"/auth/callback/google",
                 GoogleLoginHandler,
-                dict(callbackPath=googleAuthCallback)
+                dict(
+                    callbackPath=googleAuthCallback,
+                    persistentUserListObj=PersistentUserList
+                    )
             ))
         else:
             # Dummy Authentication
@@ -304,7 +331,8 @@ class Application(tornado.web.Application):
             from authHandlerDummy import DummyLoginHandler
             handlers.append((
                 r"/auth/login/dummy",
-                DummyLoginHandler
+                DummyLoginHandler,
+                dict(persistentUserListObj=PersistentUserList)
             ))
 
         tornado.web.Application.__init__(self, handlers, **settings)

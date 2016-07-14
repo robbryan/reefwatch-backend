@@ -135,7 +135,8 @@ class TestFieldDayHandler_authenticated(tornado.testing.AsyncHTTPTestCase):
         application = tornado.web.Application([
                 (
                     r"/auth/login/dummy",
-                    DummyLoginHandler
+                    DummyLoginHandler,
+                    dict(persistentUserListObj=None)
                 ),
                 (
                     r'/field_days/([A-Za-z0-9]+)',

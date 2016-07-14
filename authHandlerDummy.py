@@ -30,12 +30,12 @@ class DummyLoginHandler(AuthHandler):
             self.finish({"message": "{0}".format(errorMessage)})
             return
         user = {
-            "provider_user_id": "dummy_user_id",
+            "id": "dummy_user_id",
             "provider": "DUMMY",
             "name": userName,
-            "handle": userHandle
+            "user_handle": userHandle
         }
-        self.__onAuth__(user)
+        self.__setCookieAndRedirect__(userDetails=user, callback=lambda: None)
 
 if __name__ == "__main__":
     pass
