@@ -5,6 +5,7 @@ from baseHandler import BaseHandler
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+auditLog = logging.getLogger("audit")
 
 
 class AuthHandler(BaseHandler):
@@ -32,7 +33,6 @@ class AuthHandler(BaseHandler):
 
     def __setCookieAndRedirect__(self, userDetails, callback):
         try:
-            logger.info("Successfully authenticated as {}".format(userDetails["user_handle"]))
             self.set_secure_cookie(
                 "user",
                 tornado.escape.json_encode(
@@ -43,18 +43,41 @@ class AuthHandler(BaseHandler):
                 )
             )
             self.finish({"message": "Successfully authenticated as {}".format(userDetails["user_handle"])})
+            auditLog.info(
+                "AUTHENTICATE USER",
+                extra={
+                    "user": userDetails["id"],
+                    "what": "Authenticate user {} via {}".format(userDetails["id"], type(self).__name__),
+                    "path": self.request.path
+                }
+            )
             callback()
         except Exception as ex:
             logger.exception(ex)
+
+    def __onCreateNewUser__(self, userDetails, callback):
+        try:
+            auditLog.info(
+                "CREATE NEW USER",
+                extra={
+                    "user": userDetails["id"],
+                    "what": "Create new user {} via {}".format(userDetails["id"], type(self).__name__),
+                    "path": self.request.path
+                }
+            )
+        except Exception as ex:
+            logger.exception(ex)
+
+        self.__setCookieAndRedirect__(userDetails=userDetails, callback=callback)
 
     def __onGetMatchingUserList__(self, userDetails, userList, callback):
         if len(userList) == 1:
             self.__setCookieAndRedirect__(userDetails=userList[0], callback=callback)
         else:
-            assert len(userList) == 0, "Expected either zero or one matches for users with e-mail address {}".format(userDetails["email"])
             try:
+                assert len(userList) == 0, "Expected either zero or one matches for users with e-mail address {}".format(userDetails["email"])
                 self.__persistentUserListObj__.add(
-                    callback=lambda x: self.__setCookieAndRedirect__(
+                    callback=lambda x: self.__onCreateNewUser__(
                         userDetails={
                             "user_handle": userDetails["user_handle"],
                             "id": x,

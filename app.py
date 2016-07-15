@@ -24,7 +24,7 @@ if not hasattr(options, "log_file"):
 
 logging.basicConfig(filename=options.log_file, format='%(asctime)-6s: %(name)s - %(levelname)s - %(message)s')
 auditLogHandler = logging.FileHandler("audit.log")
-auditFormatter = logging.Formatter('%(asctime)-6s %(levelname)s %(user)s %(what)s %(path)s %(message)s')
+auditFormatter = logging.Formatter('%(asctime)-6s %(levelname)s %(message)s %(user)s %(what)s %(path)s')
 auditLogHandler.setFormatter(auditFormatter)
 auditLogger = logging.getLogger("audit")
 auditLogger.addHandler(auditLogHandler)
