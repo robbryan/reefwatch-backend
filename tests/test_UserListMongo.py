@@ -26,17 +26,19 @@ class TestReefwatchUserList(tornado.testing.AsyncTestCase):
         userList, totalRecordCount = yield listGetter.get(
             limit=recordLimit,
             offset=0,
-            query={"survey_type": "PIT", "location_id": "1000"}
+            query={"email": "christopher.robin@hundred.acre.wood"}
         )
         self.assertIsInstance(userList, list)
         self.assertEqual(len(userList), 1)
+        user = userList.pop()
+        self.assertEqual(user["user_handle"], "Billy Moon")
 
     @classmethod
     def getTestData(self):
         return [
             {
                 "_id": ObjectId('57849bdf64cc932fc08858d3'),
-                "handle": "Billy Moon",
+                "user_handle": "Billy Moon",
                 "full_name": "Christopher Robin",
                 "email_addresses": [{"email": "christopher.robin@hundred.acre.wood", "status": "active", "create_date_time": "2016-05-03 09:38:17"}],
                 "status": "active",
