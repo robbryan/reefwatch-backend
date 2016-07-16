@@ -22,8 +22,7 @@ class PersistentUserList(BaseEntityListHandler):
         assert(type(offset) == int)
         mongoQuery = {}
         if "query" in kwargs:
-            mongoQuery = {}
-            logger.info("Query: {0}".format(kwargs["query"]))
+            logger.debug("Query: {0}".format(kwargs["query"]))
             query = kwargs["query"]
             if "full_name" in query:
                 mongoQuery["full_name"] = query["full_name"]
@@ -38,7 +37,7 @@ class PersistentUserList(BaseEntityListHandler):
         userCursor = self.__mongoDbCollection__.find(
             mongoQuery,
             {
-                "handle": 1,
+                "user_handle": 1,
                 "full_name": 1,
                 "email_addresses.email": 1
             }
@@ -56,7 +55,7 @@ class PersistentUserList(BaseEntityListHandler):
     def add(self, callback, userFullName, userHandle, emailAddress, providerGeneratedId):
         logger.warning("Preparing to add user")
         user = {
-            "handle": userHandle,
+            "user_handle": userHandle,
             "full_name": userFullName,
             "email_addresses": [
                 {"email": emailAddress, "status": "active", "create_date_time": datetime.utcnow(), "provider_user_id": providerGeneratedId}

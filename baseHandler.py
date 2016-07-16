@@ -33,15 +33,15 @@ class BaseHandler(tornado.web.RequestHandler):
                 self.set_header("Access-Control-Allow-Origin", origin)
         except Exception:
             logger.info("No origin header from client")
-            
+
         user = self.get_current_user()
         self.userId = None
         self.userName = None
         if user and any(user):
             if "user_id" in user:
                 self.userId = user["user_id"]
-            if "handle" in user:
-                self.userHandle = user["handle"]
+            if "user_handle" in user:
+                self.userHandle = user["user_handle"]
 
 
 class BaseAuthenticatedHandler(BaseHandler):
@@ -56,7 +56,7 @@ class BaseAuthenticatedHandler(BaseHandler):
 
     @tornado.web.authenticated
     def get(self):
-        self.finish("Hello, {user}".format(user=self.current_user["handle"]))
+        self.finish("Hello, {user}".format(user=self.current_user["user_handle"]))
 
 
 class BaseEntityListHandler(BaseHandler):

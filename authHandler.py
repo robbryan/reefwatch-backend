@@ -38,7 +38,7 @@ class AuthHandler(BaseHandler):
                 tornado.escape.json_encode(
                     {
                         "user_id": userDetails["id"],
-                        "handle": userDetails["user_handle"]
+                        "user_handle": userDetails["user_handle"]
                     }
                 )
             )
