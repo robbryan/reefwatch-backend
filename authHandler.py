@@ -47,7 +47,9 @@ class AuthHandler(BaseHandler):
                 "AUTHENTICATE USER",
                 extra={
                     "user": userDetails["id"],
-                    "what": "Authenticate user {} via {}".format(userDetails["id"], type(self).__name__),
+                    "what": "Authenticate user {} via {}".format(
+                        userDetails["full_name"] if "full_name" in userDetails and userDetails["full_name"] else userDetails["id"], type(self).__name__
+                    ),
                     "path": self.request.path
                 }
             )
