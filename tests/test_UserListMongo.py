@@ -43,5 +43,24 @@ class TestReefwatchUserList(tornado.testing.AsyncTestCase):
                 "email_addresses": [{"email": "christopher.robin@hundred.acre.wood", "status": "active", "create_date_time": "2016-05-03 09:38:17"}],
                 "status": "active",
                 "create_date_time": "2016-05-03 09:38:17"
+            },
+            {
+                "_id": ObjectId('578aefe0c1ed600ab7ac764a'),
+                "user_handle": "Test 1",
+                "full_name": "Test User One",
+                "email_addresses": [
+                    {
+                        "email": "testuser.1@company.com",
+                        "status": "active",
+                        "create_date_time": "2016-05-07 19:02:54"
+                    },
+                    {
+                        "email": "one.testuser@acme.com",
+                        "status": "inactive",
+                        "create_date_time": "2016-06-14 11:11:23"
+                    }
+                ],
+                "status": "active",
+                "create_date_time": "2016-05-07 19:02:54"
             }
         ]
