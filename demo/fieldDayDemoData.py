@@ -16,18 +16,18 @@ fieldDayList = [
             {
                 "site_code": "ANU",
                 "observations": {
-                    "time": "12:42:00",
                     "weather": {
                         "wind_direction": "NW",
                         "wind_force": 1,
                         "amount_of_cloud": 3,
                         "rainfall": 0,
-                        "comments": "Weather Comments"
+                        "comments": "Weather Comments for ANU"
                     },
                     "volunteers": ["user1@gmail.com", "user2@gmail.com"]
                 },
                 "surveys": [
                     {
+                        "time": "12:42:00",
                         "survey_type": "PIT",
                         "comments": "Survey Comments"
                     }
@@ -35,29 +35,24 @@ fieldDayList = [
             },
             {
                 "site_code": "ANM",
+                "observations": {
+                    "weather": {
+                        "wind_direction": "NW",
+                        "wind_force": 1,
+                        "amount_of_cloud": 3,
+                        "rainfall": 0,
+                        "comments": "Weather Comments for ANM"
+                    },
+                    "volunteers": ["user1@gmail.com", "user3@gmail.com"]
+                },
                 "surveys": [
                     {
                         "survey_type": "Timed Search",
-                        "time": "13:00:00",
-                        "weather": {
-                            "wind_direction": "NW",
-                            "wind_force": 1,
-                            "amount_of_cloud": 3,
-                            "rainfall": 0,
-                            "comments": "Weather Comments"
-                        },
-                        "comments": "Survey Comments"
+                        "time": "13:00:00"
                     },
                     {
                         "survey_type": "MSQ Search",
                         "time": "13:30:00",
-                        "weather": {
-                            "wind_direction": "NW",
-                            "wind_force": 2,
-                            "amount_of_cloud": 5,
-                            "rainfall": 1,
-                            "comments": "Weather Comments"
-                        },
                         "comments": "Survey Comments"
                     }
                 ]
@@ -75,7 +70,6 @@ fieldDayList = [
             {
                 "site_code": "ASU",
                 "observations": {
-                    "time": "10:20:00",
                     "weather": {
                         "wind_direction": "W",
                         "wind_force": 1,
@@ -87,7 +81,8 @@ fieldDayList = [
                 "surveys": [
                     {
                         "survey_type": "PIT",
-                        "comments": "ASU PIT - Survey Comments"
+                        "comments": "ASU PIT - Survey Comments",
+                        "time": "10:20:00"
                     }
                 ]
             }
