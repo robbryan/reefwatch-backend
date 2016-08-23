@@ -55,6 +55,67 @@ class FieldDaySiteObservationsHandler(BaseHandler):
         else:
             self.finish(fieldDaySiteObservationsEntity)
 
+    def __validateWeatherObject__(self, tideObj):
+        isValid = True
+        message = "Valid Weather Observation"
+        mandatoryItems = ['wind_force', 'wind_direction', 'amount_of_cloud', 'rainfall']
+        missingItems = [mandatoryItem for mandatoryItem in mandatoryItems if (mandatoryItem not in tideObj.iterkeys())]
+        if len(missingItems) > 0:
+            return (False, "{} are required".format(", ".join(map(lambda x: "\"{}\"".format(x), mandatoryItems))))
+
+        acceptableItems = mandatoryItems + ["comments"]
+        extraneousItems = [extraItem for extraItem in tideObj.iterkeys() if (extraItem not in acceptableItems)]
+        if len(extraneousItems) > 0:
+            return (False, "Only {} may be specified".format(", ".join(map(lambda x: "\"{}\"".format(x), acceptableItems))))
+
+        return (isValid, message)
+
+    @coroutine
+    @tornado.web.authenticated
+    def post(self, fieldDayId, siteCode):
+        """
+        curl -X POST --cookie cookies.txt -F "weather={\"wind_force\": 2, \"wind_direction\": \"S\", \"amount_of_cloud\": 3}" http://localhost:9880/field_days/573e765fc1ed602daf609007/sites/ANL/observations
+        """
+        try:
+            weatherStr = self.get_body_argument("weather")
+        except (ValueError, tornado.web.MissingArgumentError) as exArgument:
+            errorMessage = exArgument
+            self.set_status(400)
+            self.add_header("error", "{0}".format(errorMessage))
+            self.finish({"message": "{0}".format(errorMessage)})
+            return
+
+        try:
+            try:
+                weather = tornado.escape.json_decode(weatherStr)
+                isValid, weatherValidationMsg = self.__validateWeatherObject__(weather)
+                if not isValid:
+                    raise ValueError(weatherValidationMsg)
+            except Exception as exWeather:
+                logger.warning(
+                    "Error parsing weather ({weather}): {ex}".format(
+                        weather=weatherStr,
+                        ex=exWeather
+                    )
+                )
+                raise ValueError(
+                    "The correct format for the 'weather' argument is a form-encoded object in the form {\"wind_force\"]: f, \"wind_direction\": \"s\", \"amount_of_cloud\": f}"
+                )
+        except (ValueError, tornado.web.MissingArgumentError) as exArgument:
+            errorMessage = exArgument
+            self.set_status(400)
+            self.add_header("error", "{0}".format(errorMessage))
+            self.finish({"message": "{0}".format(errorMessage)})
+            return
+
+        try:
+            observationTime = self.get_body_argument("observation_time")
+        except (ValueError, tornado.web.MissingArgumentError) as exArgument:
+            errorMessage = exArgument
+            self.set_status(400)
+            self.add_header("error", "{0}".format(errorMessage))
+            self.finish({"message": "{0}".format(errorMessage)})
+            return
 
 if __name__ == "__main__":
     pass
