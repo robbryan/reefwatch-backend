@@ -101,6 +101,20 @@ class FieldDaySiteObservationsHandler(BaseHandler):
                 raise ValueError(
                     "The correct format for the 'weather' argument is a form-encoded object in the form {\"wind_force\"]: f, \"wind_direction\": \"s\", \"amount_of_cloud\": f}"
                 )
+
+            volunteersStr = self.get_body_argument("volunteers")
+            try:
+                volunteers = tornado.escape.json_decode(volunteersStr)
+            except Exception as exVolunteers:
+                logger.warning(
+                    "Error parsing volunteers ({volunteers}): {ex}".format(
+                        volunteers=volunteersStr,
+                        ex=exVolunteers
+                    )
+                )
+                raise ValueError(
+                    "The correct format for the 'volunteers' argument is a form-encoded object in the form [\"volunteer 1\", \"volunteer 2\"]"
+                )
         except (ValueError, tornado.web.MissingArgumentError) as exArgument:
             errorMessage = exArgument
             self.set_status(400)
@@ -108,14 +122,6 @@ class FieldDaySiteObservationsHandler(BaseHandler):
             self.finish({"message": "{0}".format(errorMessage)})
             return
 
-        try:
-            observationTime = self.get_body_argument("observation_time")
-        except (ValueError, tornado.web.MissingArgumentError) as exArgument:
-            errorMessage = exArgument
-            self.set_status(400)
-            self.add_header("error", "{0}".format(errorMessage))
-            self.finish({"message": "{0}".format(errorMessage)})
-            return
 
 if __name__ == "__main__":
     pass
