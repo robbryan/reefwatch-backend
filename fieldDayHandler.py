@@ -13,11 +13,9 @@ from datetime import datetime
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logger.getEffectiveLevel())
-
+auditLogger = logging.getLogger("audit")
 
 class FieldDayListHandler(BaseEntityListHandler):
-
-    auditLog = logging.getLogger("audit")
 
     def initialize(self, persistentEntityListObj, persistentLocationEntityObj):
         self.__persistentEntityListObj__ = persistentEntityListObj
@@ -330,11 +328,11 @@ class FieldDayTidesHandler(BaseHandler):
         self.finish(
             {"message": "Tides for Field Day ({0}) successfully updated".format(fieldDayId)}
         )
-        self.auditLog.info(
-            "UPDATE FIELD DAY",
+        auditLogger.info(
+            "UPDATE FIELD DAY TIDES",
             extra={
                 "user": self.userId,
-                "what": "PUT Field Day {} TIDES via {}".format(fieldDayId, type(self).__name__),
+                "what": "{method} Field Day {id} TIDES via {func}".format(method=self.request.method, id=fieldDayId, func=type(self).__name__),
                 "path": self.request.path
             }
         )
