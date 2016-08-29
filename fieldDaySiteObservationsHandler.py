@@ -13,7 +13,7 @@ from datetime import datetime
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logger.getEffectiveLevel())
-
+auditLogger = logging.getLogger("audit")
 
 class FieldDaySiteObservationsHandler(BaseHandler):
 
@@ -78,6 +78,7 @@ class FieldDaySiteObservationsHandler(BaseHandler):
         """
         try:
             weatherStr = self.get_body_argument("weather")
+            volunteersStr = self.get_body_argument("volunteers")
         except (ValueError, tornado.web.MissingArgumentError) as exArgument:
             errorMessage = exArgument
             self.set_status(400)
@@ -85,6 +86,7 @@ class FieldDaySiteObservationsHandler(BaseHandler):
             self.finish({"message": "{0}".format(errorMessage)})
             return
 
+        observations = dict()
         try:
             try:
                 weather = tornado.escape.json_decode(weatherStr)
@@ -99,10 +101,11 @@ class FieldDaySiteObservationsHandler(BaseHandler):
                     )
                 )
                 raise ValueError(
-                    "The correct format for the 'weather' argument is a form-encoded object in the form {\"wind_force\"]: f, \"wind_direction\": \"s\", \"amount_of_cloud\": f}"
+                    "The correct format for the 'weather' argument is a form-encoded object in the form {\"wind_force\": f, \"wind_direction\": \"s\", \"amount_of_cloud\": f}"
                 )
+            else:
+                observations["weather"] = weather
 
-            volunteersStr = self.get_body_argument("volunteers")
             try:
                 volunteers = tornado.escape.json_decode(volunteersStr)
             except Exception as exVolunteers:
@@ -115,12 +118,49 @@ class FieldDaySiteObservationsHandler(BaseHandler):
                 raise ValueError(
                     "The correct format for the 'volunteers' argument is a form-encoded object in the form [\"volunteer 1\", \"volunteer 2\"]"
                 )
+            else:
+                observations["volunteers"] = volunteers
+            logger.debug(observations)
         except (ValueError, tornado.web.MissingArgumentError) as exArgument:
             errorMessage = exArgument
             self.set_status(400)
             self.add_header("error", "{0}".format(errorMessage))
             self.finish({"message": "{0}".format(errorMessage)})
             return
+
+        try:
+            entitySetter = self.__persistentEntityObj__
+            updateCount = yield entitySetter.update(
+                fieldDayId=fieldDayId,
+                siteCode=siteCode,
+                **dict({"observations":observations})
+            )
+            logger.debug("Update Count: {}".format(updateCount))
+            if updateCount <= 0:
+                raise Exception("Zero Field Day Observations were updated")
+        except Exception as ex:
+            logger.exception("{0}".format(ex))
+            errorMessage = "An error occured while attempting to update Field Day Site Observations"
+            self.set_status(500)
+            self.add_header(
+                "error", "{0}".format(
+                    errorMessage
+                )
+            )
+            self.finish({"message": "{0}".format(errorMessage)})
+            return
+
+        self.finish(
+            {"message": "Observations for Field Day ({0}) successfully updated".format(fieldDayId)}
+        )
+        auditLogger.info(
+            "UPDATE FIELD DAY OBSERVATIONS",
+            extra={
+                "user": self.userId,
+                "what": "{method} Field Day {id} OBSERVATIONS via {func}".format(method=self.request.method, id=fieldDayId, func=type(self).__name__),
+                "path": self.request.path
+            }
+        )
 
 
 if __name__ == "__main__":

@@ -30,6 +30,31 @@ class PersistentFieldDaySite(object):
         else:
             callback(None)
 
+    @tornado.concurrent.return_future
+    def update(self, fieldDayId, siteCode, callback, **kwargs):
+        if type(fieldDayId) in [str, unicode]:
+            fieldDayId = ObjectId(fieldDayId)
+
+        mongoSelector = {"_id": fieldDayId, "sites.site_code": siteCode}
+        mongoUpdates = {
+            "$set": {}
+        }
+        if "observations" in kwargs:
+            mongoUpdates["$set"] = {"sites.$.observations": kwargs["observations"]}
+
+        if any(mongoUpdates["$set"]):
+            logger.debug(mongoUpdates)
+            mongoUpdates["$set"]["$currentDate"] = {
+                "last_modified": True
+            }
+            result = self.__mongoDbCollection__.find_one_and_update(
+                mongoSelector,
+                mongoUpdates
+            )
+            callback(1 if result else 0)
+        else:
+            raise ValueError("No field day observation information to set")
+
 
 if __name__ == "__main__":
     pass
