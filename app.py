@@ -303,6 +303,8 @@ class Application(tornado.web.Application):
             (r"/auth/logout", LogoutHandler)
         ]
 
+        redirectUrlOnLoginSuccess = options.login_redirect if hasattr(options, 'login_redirect') and options.login_redirect else "/"
+        
         # Google OAuth2 Settings
         if hasattr(options, "google_client_id"):
             google_oauth = {"key": options.google_client_id, "secret": options.google_client_secret}
@@ -322,7 +324,8 @@ class Application(tornado.web.Application):
                 GoogleLoginHandler,
                 dict(
                     callbackPath=googleAuthCallback,
-                    persistentUserListObj=PersistentUserList
+                    persistentUserListObj=PersistentUserList,
+                    authSuccessRedirectUrl=redirectUrlOnLoginSuccess
                     )
             ))
         else:
