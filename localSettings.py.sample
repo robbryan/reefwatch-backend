@@ -5,6 +5,9 @@ define("log_file", type=str, default="access.log", help="Name of file to which t
 define("debug", type=bool, default=False, help="Auto-reload on code change")
 define("cookie_secret", default=None, help="Encryption key used for ecrypting secure cookies")
 
+""" Authentication Settings """
+define("login_redirect", default="/", help="Location to which authenticated users will be redirected to")
+
 """ Define MongoDB connection and database details """
 define("mongo_instance", type=str, group="persistence", default=None, help="host:port for MongoDB instance")
 define("mongo_database", type=str, group="persistence", default="reefwatch_dev", help="Name of the Reef Watch database on the MongoDB instance")

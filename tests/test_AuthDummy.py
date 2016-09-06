@@ -119,15 +119,14 @@ class TestDummyAuthHandler(tornado.testing.AsyncHTTPTestCase):
             tornado.escape.url_escape("Test user 1")
         )
         loginResponse = self.fetch("/auth/login/dummy?" + requestQuery, follow_redirects=False)
-        self.assertEqual(loginResponse.code, 200)
-        responseJson = tornado.escape.json_decode(loginResponse.body)
+        self.assertEqual(loginResponse.code, 302)
         self.assertIn(
-            u"message",
-            responseJson
+            "Location",
+            loginResponse.headers
         )
-        self.assertIn(
-            "Successfully authenticated as",
-            responseJson["message"]
+        self.assertEqual(
+            "/",
+            loginResponse.headers["Location"]
         )
 
         print "COOKIES: {0}".format(self.cookies.output())

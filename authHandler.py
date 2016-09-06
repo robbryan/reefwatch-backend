@@ -42,7 +42,7 @@ class AuthHandler(BaseHandler):
                     }
                 )
             )
-            self.finish({"message": "Successfully authenticated as {}".format(userDetails["user_handle"])})
+            self.redirect(self.authSuccessRedirectUrl)
             auditLog.info(
                 "AUTHENTICATE USER",
                 extra={
@@ -95,8 +95,9 @@ class AuthHandler(BaseHandler):
             except Exception as ex:
                 logger.exception(ex)
 
-    def initialize(self, persistentUserListObj):
+    def initialize(self, persistentUserListObj, authSuccessRedirectUrl="/"):
         self.__persistentUserListObj__ = persistentUserListObj
+        self.authSuccessRedirectUrl = authSuccessRedirectUrl
 
 
 class LogoutHandler(BaseHandler):
