@@ -6,7 +6,7 @@ define("debug", type=bool, default=False, help="Auto-reload on code change")
 define("cookie_secret", default=None, help="Encryption key used for ecrypting secure cookies")
 
 """ Authentication Settings """
-define("login_redirect", default="/", help="Location to which authenticated users will be redirected to")
+define("login_redirect", default="/", help="Location to which authenticated users will be redirected")
 #define("google_client_id", default="<GET ONE FROM GOOGLE DEVELOPERS CONSOLE>")
 #define("google_client_secret", default="<GET ONE FROM GOOGLE DEVELOPERS CONSOLE>")
 #define("google_auth_callback", default="auth/callback/google")
