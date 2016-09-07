@@ -6,6 +6,7 @@ __author__    = "Paul Staszyc"
 __copyright__ = "Copyright 2016"
 
 from tornado.gen import coroutine
+import tornado.web
 
 from baseHandler import BaseEntityListHandler
 
@@ -20,11 +21,18 @@ class VolunteerListHandler(BaseEntityListHandler):
         self.__persistentEntityListObj__ = persistentEntityListObj
 
     def options(self, *args):
-        allowedMethods = list(["OPTIONS", "GET"])
+        allowedMethods = list(["OPTIONS"])
+        try:
+            user = self.get_current_user()
+            if user and any(user):
+                allowedMethods.append("GET")
+        except Exception as ex:
+            logger.error(ex)
 
         self.set_header("Access-Control-Allow-Methods", ",".join(allowedMethods))
         self.finish()
 
+    @tornado.web.authenticated
     @coroutine
     def get(self):
         try:

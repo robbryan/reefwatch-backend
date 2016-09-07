@@ -23,7 +23,7 @@ fieldDayList = [
                         "rainfall": 0,
                         "comments": "Weather Comments for ANU"
                     },
-                    "volunteers": ["user1@gmail.com", "user2@gmail.com"]
+                    "volunteers": ["Alfred Deakin", "Chris Watson"]
                 },
                 "surveys": [
                     {
@@ -43,7 +43,7 @@ fieldDayList = [
                         "rainfall": 0,
                         "comments": "Weather Comments for ANM"
                     },
-                    "volunteers": ["user1@gmail.com", "user3@gmail.com"]
+                    "volunteers": ["Chris Watson", "George Reid"]
                 },
                 "surveys": [
                     {
