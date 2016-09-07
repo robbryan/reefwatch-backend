@@ -14,6 +14,16 @@ fieldDayList = [
         "sites": [
             {
                 "site_code": "ANU",
+                "observations": {
+                    "weather": {
+                        "wind_direction": "NW",
+                        "wind_force": 1,
+                        "amount_of_cloud": 3,
+                        "rainfall": 0,
+                        "comments": "Weather Comments for ANU"
+                    },
+                    "volunteers": ["Alfred Deakin", "Chris Watson"]
+                },
                 "surveys": [
                     {
                         "survey_type": "PIT",
@@ -60,7 +70,6 @@ fieldDayList = [
                 ]
             }
         ],
-        "volunteers": [] # calculated from child-surveys
     },
     {
         "_id": objectid.ObjectId("573e7696c1ed602daf609008"),

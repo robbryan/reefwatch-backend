@@ -46,6 +46,9 @@ from fieldDaySiteHandler import FieldDaySiteListHandler, FieldDaySiteHandler
 """ Observations """
 from fieldDaySiteObservationsHandler import FieldDaySiteObservationsHandler
 
+""" Volunteers """
+from volunteerHandler import VolunteerListHandler
+
 from baseHandler import BaseAuthenticatedHandler
 
 import importlib
@@ -161,6 +164,11 @@ else:
 
     PersistentFieldDaySurveyListModule = importlib.import_module("persistence.FieldDaySurveyListMongo")
     PersistentFieldDaySurveyList = PersistentFieldDaySurveyListModule.PersistentFieldDaySurveyList(
+        mongoDb[fieldDayOptions["field_day_collection"]]
+    )
+
+    PersistentVolunteerListModule = importlib.import_module("persistence.VolunteerListMongo")
+    PersistentVolunteerList = PersistentVolunteerListModule.PersistentVolunteerList(
         mongoDb[fieldDayOptions["field_day_collection"]]
     )
 
@@ -299,6 +307,7 @@ class Application(tornado.web.Application):
             (r"/locations/({id})".format(id=mongoIdRegex), LocationHandler, dict(persistentLocationEntityObj=PersistentLocationEntity)),
             (r"/locations", LocationListHandler, dict(persistentLocationListObj=PersistentLocationList)),
             (r"/surveys", SurveyTypeListHandler, dict(persistentSurveyListObj=PersistentSurveyTypeList)),
+            (r"/volunteers", VolunteerListHandler, dict(persistentEntityListObj=PersistentVolunteerList)),
             (r"/auth/success", BaseAuthenticatedHandler),
             (r"/auth/logout", LogoutHandler)
         ]
