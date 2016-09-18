@@ -5,6 +5,7 @@ install:
   - pip install tornado
   - pip install pymongo
   - pip install mongomock
+  - pip install coverage
 script:
   - nosetests --with-coverage
 after_success:
